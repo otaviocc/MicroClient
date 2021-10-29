@@ -1,11 +1,10 @@
-import Combine
 import Foundation
 
 public protocol NetworkClientProtocol {
 
     func run<RequestModel, ResponseModel>(
         _ networkRequest: NetworkRequest<RequestModel, ResponseModel>
-    ) -> AnyPublisher<NetworkResponse<ResponseModel>, Error>
+    ) async throws -> NetworkResponse<ResponseModel>
 }
 
 public final class NetworkClient: NetworkClientProtocol {
@@ -26,52 +25,26 @@ public final class NetworkClient: NetworkClientProtocol {
 
     public func run<RequestModel, ResponseModel>(
         _ networkRequest: NetworkRequest<RequestModel, ResponseModel>
-    ) -> AnyPublisher<NetworkResponse<ResponseModel>, Error> {
-        urlRequestPublisher(networkRequest: networkRequest)
-            .flatMap { request in
-                self.requestPublisher(
-                    urlRequest: request,
-                    networkRequest: networkRequest
-                )
-            }
-            .receive(on: DispatchQueue.main)
-            .eraseToAnyPublisher()
-    }
+    ) async throws -> NetworkResponse<ResponseModel>  {
+        var request = try URLRequest.makeURLRequest(
+            configuration: configuration,
+            networkRequest: networkRequest
+        )
 
-    // MARK: - Private
-
-    private func urlRequestPublisher<RequestModel, ResponseModel>(
-        networkRequest: NetworkRequest<RequestModel, ResponseModel>
-    ) -> AnyPublisher<URLRequest, Error> {
-        Result {
-            try URLRequest.makeURLRequest(
-                configuration: configuration,
-                networkRequest: networkRequest
-            )
+        if let interceptor = configuration.interceptor {
+            request = interceptor(request)
         }
-        .publisher
-        .unwrap(with: NetworkClientError.malformedURLRequest)
-        .compactMap { [configuration] request in
-            configuration.interceptor?(request)
-        }
-        .eraseToAnyPublisher()
-    }
 
-    private func requestPublisher<RequestModel, ResponseModel>(
-        urlRequest: URLRequest,
-        networkRequest: NetworkRequest<RequestModel, ResponseModel>
-    ) -> AnyPublisher<NetworkResponse<ResponseModel>, Error> {
-        configuration.session
-            .dataTaskPublisher(for: urlRequest)
-            .tryMap { [configuration] result in
-                NetworkResponse(
-                    value: try networkRequest.decode(
-                        data: result.data,
-                        defaultDecoder: configuration.defaultDecoder
-                    ),
-                    response: result.response
-                )
-            }
-            .eraseToAnyPublisher()
+        let (data, response) = try await configuration.session.data(
+            for: request
+        )
+
+        return NetworkResponse(
+            value: try networkRequest.decode(
+                data: data,
+                defaultDecoder: configuration.defaultDecoder
+            ),
+            response: response
+        )
     }
 }

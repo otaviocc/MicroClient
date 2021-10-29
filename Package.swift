@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "MicroClient",
     platforms: [
-        .macOS(.v11), .iOS(.v13), .tvOS(.v13), .watchOS(.v6)
+        .macOS(.v12), .iOS(.v13)
     ],
     products: [
         .library(

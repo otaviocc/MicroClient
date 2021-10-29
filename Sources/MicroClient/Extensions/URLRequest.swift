@@ -5,7 +5,7 @@ extension URLRequest {
     static func makeURLRequest<RequestModel, ResponseModel>(
         configuration: NetworkConfiguration,
         networkRequest: NetworkRequest<RequestModel, ResponseModel>
-    ) throws -> URLRequest? {
+    ) throws -> URLRequest {
         let url = try URL.makeURL(
             configuration: configuration,
             networkRequest: networkRequest

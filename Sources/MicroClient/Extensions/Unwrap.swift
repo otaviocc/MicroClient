@@ -1,4 +1,4 @@
-import Combine
+import Foundation
 
 func unwrap<T>(
     value: T?,
@@ -9,17 +9,4 @@ func unwrap<T>(
     }
 
     return value
-}
-
-extension Publisher {
-
-    func unwrap<T>(
-        with error: Failure
-    ) -> Publishers.FlatMap<Result<T, Self.Failure>.Publisher, Self> where Output == T? {
-        flatMap { unwrapped in
-            unwrapped.map { value in
-                Result.success(value).publisher
-            } ?? Result.failure(error).publisher
-        }
-    }
 }
