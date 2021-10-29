@@ -14,12 +14,16 @@ extension URLRequest {
         var request = URLRequest(url: url)
         request.httpMethod = networkRequest.method.rawValue
         request.httpBody = try networkRequest.body
-            .map {
+            .map { payload in
                 try networkRequest.encode(
-                    payload: $0,
+                    payload: payload,
                     defaultEncoder: configuration.defaultEncoder
                 )
             }
+
+        networkRequest.additionalHeaders?.forEach { field, value in
+            request.setValue(value, forHTTPHeaderField: field)
+        }
 
         return request
     }

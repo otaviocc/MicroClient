@@ -13,6 +13,7 @@ public struct NetworkRequest<
     public var body: RequestModel?
     public var decoder: JSONDecoder?
     public var encoder: JSONEncoder?
+    public var additionalHeaders: [String: String]?
 
     // MARK: - Life cycle
 
@@ -22,7 +23,8 @@ public struct NetworkRequest<
         parameters: [String : String]? = nil,
         body: RequestModel? = nil,
         decoder: JSONDecoder? = nil,
-        encoder: JSONEncoder? = nil
+        encoder: JSONEncoder? = nil,
+        additionalHeaders: [String: String]? = nil
     ) {
         self.path = path
         self.method = method
@@ -30,6 +32,7 @@ public struct NetworkRequest<
         self.body = body
         self.decoder = decoder
         self.encoder = encoder
+        self.additionalHeaders = additionalHeaders
     }
 }
 
