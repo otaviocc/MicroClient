@@ -58,6 +58,10 @@ extension NetworkRequest {
         payload: RequestModel,
         defaultEncoder: JSONEncoder
     ) throws -> Data {
+        if let data = payload as? Data {
+            return data
+        }
+
         let encoder = encoder ?? defaultEncoder
         return try encoder.encode(payload)
     }
