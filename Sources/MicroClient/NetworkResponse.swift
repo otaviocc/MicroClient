@@ -1,6 +1,6 @@
 import Foundation
 
-public struct NetworkResponse<T> {
-    public let value: T
+public struct NetworkResponse<ResponseModel> {
+    public let value: ResponseModel
     public let response: URLResponse
 }
