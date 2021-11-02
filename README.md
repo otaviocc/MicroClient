@@ -3,7 +3,6 @@
 
 ```swift
 public protocol NetworkClientProtocol {
-
     func run<RequestModel, ResponseModel>(
         _ networkRequest: NetworkRequest<RequestModel, ResponseModel>
     ) async throws -> NetworkResponse<ResponseModel>
