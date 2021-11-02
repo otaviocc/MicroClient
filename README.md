@@ -1,5 +1,6 @@
 # MicroClient
-**MicroClient** is a simple and lightweight  network client which can be used by all sorts of projects. It consists of a `NetworkClient`
+
+**MicroClient** is a simple and lightweight network client which can be used by all sorts of projects. It consists of a `NetworkClient`
 
 ```swift
 public protocol NetworkClientProtocol {
