@@ -25,7 +25,7 @@ public final class NetworkClient: NetworkClientProtocol {
 
     public func run<RequestModel, ResponseModel>(
         _ networkRequest: NetworkRequest<RequestModel, ResponseModel>
-    ) async throws -> NetworkResponse<ResponseModel>  {
+    ) async throws -> NetworkResponse<ResponseModel> {
         var request = try URLRequest.makeURLRequest(
             configuration: configuration,
             networkRequest: networkRequest

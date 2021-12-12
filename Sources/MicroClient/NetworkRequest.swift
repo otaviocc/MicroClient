@@ -20,7 +20,7 @@ public struct NetworkRequest<
     public init(
         path: String,
         method: HTTPMethod,
-        parameters: [String : String]? = nil,
+        parameters: [String: String]? = nil,
         body: RequestModel? = nil,
         decoder: JSONDecoder? = nil,
         encoder: JSONEncoder? = nil,
@@ -38,9 +38,9 @@ public struct NetworkRequest<
 
 // MARK: - Query Items
 
-extension NetworkRequest {
+public extension NetworkRequest {
 
-    public var queryItems: [URLQueryItem]? {
+    var queryItems: [URLQueryItem]? {
         parameters?.compactMap { parameter in
             URLQueryItem(
                 name: parameter.key,
@@ -52,9 +52,9 @@ extension NetworkRequest {
 
 // MARK: - HTTP Body
 
-extension NetworkRequest {
+public extension NetworkRequest {
 
-    public func encode(
+    func encode(
         payload: RequestModel,
         defaultEncoder: JSONEncoder
     ) throws -> Data {
@@ -69,9 +69,9 @@ extension NetworkRequest {
 
 // MARK: - Decode
 
-extension NetworkRequest {
+public extension NetworkRequest {
 
-    public func decode(
+    func decode(
         data: Data,
         defaultDecoder: JSONDecoder
     ) throws -> ResponseModel {
