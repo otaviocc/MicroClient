@@ -9,11 +9,11 @@ public struct NetworkRequest<
 
     public let path: String
     public let method: HTTPMethod
-    public var parameters: [String: String]?
-    public var body: RequestModel?
-    public var decoder: JSONDecoder?
-    public var encoder: JSONEncoder?
-    public var additionalHeaders: [String: String]?
+    public let parameters: [String: String]?
+    public let body: RequestModel?
+    public let decoder: JSONDecoder?
+    public let encoder: JSONEncoder?
+    public let additionalHeaders: [String: String]?
 
     // MARK: - Life cycle
 
