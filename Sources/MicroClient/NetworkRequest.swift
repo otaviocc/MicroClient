@@ -9,7 +9,7 @@ public struct NetworkRequest<
 
     public let path: String
     public let method: HTTPMethod
-    public let parameters: [String: String]?
+    public let parameters: [String: String?]?
     public let body: RequestModel?
     public let decoder: JSONDecoder?
     public let encoder: JSONEncoder?
