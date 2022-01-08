@@ -20,7 +20,7 @@ public struct NetworkRequest<
     public init(
         path: String,
         method: HTTPMethod,
-        parameters: [String: String]? = nil,
+        parameters: [String: String?]? = nil,
         body: RequestModel? = nil,
         decoder: JSONDecoder? = nil,
         encoder: JSONEncoder? = nil,
