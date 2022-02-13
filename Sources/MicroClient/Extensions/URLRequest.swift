@@ -13,13 +13,9 @@ extension URLRequest {
 
         var request = URLRequest(url: url)
         request.httpMethod = networkRequest.method.rawValue
-        request.httpBody = try networkRequest.body
-            .map { payload in
-                try networkRequest.encode(
-                    payload: payload,
-                    defaultEncoder: configuration.defaultEncoder
-                )
-            }
+        request.httpBody = try networkRequest.httpBody(
+            defaultEncoder: configuration.defaultEncoder
+        )
 
         networkRequest.additionalHeaders?.forEach { field, value in
             request.setValue(value, forHTTPHeaderField: field)

@@ -9,7 +9,8 @@ public struct NetworkRequest<
 
     public let path: String
     public let method: HTTPMethod
-    public let parameters: [String: String?]?
+    public let queryItems: [URLQueryItem]?
+    public let formItems: [URLFormItem]?
     public let body: RequestModel?
     public let decoder: JSONDecoder?
     public let encoder: JSONEncoder?
@@ -20,7 +21,8 @@ public struct NetworkRequest<
     public init(
         path: String,
         method: HTTPMethod,
-        parameters: [String: String?]? = nil,
+        queryItems: [URLQueryItem]? = nil,
+        formItems: [URLFormItem]? = nil,
         body: RequestModel? = nil,
         decoder: JSONDecoder? = nil,
         encoder: JSONEncoder? = nil,
@@ -28,7 +30,8 @@ public struct NetworkRequest<
     ) {
         self.path = path
         self.method = method
-        self.parameters = parameters
+        self.queryItems = queryItems
+        self.formItems = formItems
         self.body = body
         self.decoder = decoder
         self.encoder = encoder
@@ -36,23 +39,29 @@ public struct NetworkRequest<
     }
 }
 
-// MARK: - Query Items
+// MARK: - HTTP Body
 
-public extension NetworkRequest {
+extension NetworkRequest {
 
-    var queryItems: [URLQueryItem]? {
-        parameters?.compactMap { parameter in
-            URLQueryItem(
-                name: parameter.key,
-                value: parameter.value
+    func httpBody(
+        defaultEncoder: JSONEncoder
+    ) throws -> Data? {
+        guard formItems == nil else {
+            return formItems?.urlEncoded()
+        }
+
+        return try body.map { payload in
+            try encode(
+                payload: payload,
+                defaultEncoder: defaultEncoder
             )
         }
     }
 }
 
-// MARK: - HTTP Body
+// MARK: - Encode
 
-public extension NetworkRequest {
+extension NetworkRequest {
 
     func encode(
         payload: RequestModel,
@@ -69,7 +78,7 @@ public extension NetworkRequest {
 
 // MARK: - Decode
 
-public extension NetworkRequest {
+extension NetworkRequest {
 
     func decode(
         data: Data,
