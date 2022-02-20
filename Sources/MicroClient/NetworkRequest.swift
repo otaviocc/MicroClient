@@ -84,6 +84,10 @@ extension NetworkRequest {
         data: Data,
         defaultDecoder: JSONDecoder
     ) throws -> ResponseModel {
+        guard ResponseModel.self != VoidResponse.self else {
+            return VoidResponse() as! ResponseModel
+        }
+
         let decoder = decoder ?? defaultDecoder
 
         return try decoder.decode(
