@@ -12,7 +12,7 @@ extension URL {
         components.host = configuration.hostname
         components.path = networkRequest.path
         components.queryItems = networkRequest.queryItems?
-            .filter { $0.value == nil }
+            .filter { $0.value != nil }
 
         return try unwrap(
             value: components.url,

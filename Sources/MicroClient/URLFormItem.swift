@@ -33,12 +33,14 @@ extension Array where Element == URLFormItem {
     func urlEncoded() -> Data? {
         var components = URLComponents()
 
-        components.queryItems = map {
-            .init(
-                name: $0.name,
-                value: $0.value
-            )
-        }
+        components.queryItems = self
+            .map {
+                .init(
+                    name: $0.name,
+                    value: $0.value
+                )
+            }
+            .filter { $0.value != nil }
 
         return components
             .percentEncodedQuery?
