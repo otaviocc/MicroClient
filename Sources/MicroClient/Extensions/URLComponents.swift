@@ -6,16 +6,20 @@ extension URL {
         configuration: NetworkConfiguration,
         networkRequest: NetworkRequest<RequestModel, ResponseModel>
     ) throws -> URL {
-        var components = URLComponents()
+        let url = configuration
+            .baseURL
+            .appendingPathComponent(networkRequest.path)
 
-        components.scheme = configuration.scheme
-        components.host = configuration.hostname
-        components.path = networkRequest.path
-        components.queryItems = networkRequest.queryItems?
+        var components = URLComponents(
+            url: url,
+            resolvingAgainstBaseURL: false
+        )
+
+        components?.queryItems = networkRequest.queryItems?
             .filter { $0.value != nil }
 
         return try unwrap(
-            value: components.url,
+            value: components?.url,
             error: NetworkClientError.malformedURL
         )
     }

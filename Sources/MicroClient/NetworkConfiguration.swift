@@ -13,11 +13,9 @@ public final class NetworkConfiguration {
     /// individual requests, if necessary.
     public let defaultEncoder: JSONEncoder
 
-    /// The scheme component of the base URL.
-    public let scheme: String
-
-    /// The host component of the base URL.
-    public let hostname: String
+    /// The base URL component.
+    /// E.g., `https://hostname.com/api/v3`
+    public let baseURL: URL
 
     /// The interceptor called right before performing the
     /// network request. Can be used to modify the `URLRequest`
@@ -28,13 +26,11 @@ public final class NetworkConfiguration {
         session: URLSession,
         defaultDecoder: JSONDecoder,
         defaultEncoder: JSONEncoder,
-        scheme: String,
-        hostname: String
+        baseURL: URL
     ) {
         self.session = session
         self.defaultDecoder = defaultDecoder
         self.defaultEncoder = defaultEncoder
-        self.scheme = scheme
-        self.hostname = hostname
+        self.baseURL = baseURL
     }
 }
