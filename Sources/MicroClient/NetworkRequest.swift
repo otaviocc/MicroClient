@@ -9,7 +9,7 @@ public struct NetworkRequest<
 
     /// The request `/path`, used in combination with the
     /// `NetworkConfiguration.baseURL`.
-    public let path: String
+    public let path: String?
 
     /// The HTTP request method.
     public let method: HTTPMethod
@@ -46,7 +46,7 @@ public struct NetworkRequest<
     // MARK: - Life cycle
 
     public init(
-        path: String,
+        path: String?,
         method: HTTPMethod,
         queryItems: [URLQueryItem]? = nil,
         formItems: [URLFormItem]? = nil,
