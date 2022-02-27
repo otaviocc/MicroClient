@@ -7,13 +7,36 @@ public struct NetworkRequest<
 
     // MARK: - Properties
 
+    /// The request `/path`, used in combination with the
+    /// `NetworkConfiguration.baseURL`.
     public let path: String
+
+    /// The HTTP request method.
     public let method: HTTPMethod
+
+    /// The query URL component as an array of name/value pairs.
     public let queryItems: [URLQueryItem]?
+
+    /// The data sent as the message body of a request as
+    /// form item as for an HTTP POST request.
     public let formItems: [URLFormItem]?
+
+    /// The data sent as the message body of a request, such
+    /// as for an HTTP POST request.
     public let body: RequestModel?
+
+    /// The decoder used to decode the `ResponseModel`. If not not
+    /// specified `NetworkConfiguration.defaultDecoder`.
+    /// is used instead.
     public let decoder: JSONDecoder?
+
+    /// The encoder used to encode the `RequestModel`. If not not
+    /// specified `NetworkConfiguration.defaultEncoder`.
+    /// is used instead.
     public let encoder: JSONEncoder?
+
+    /// A dictionary containing additional header fields
+    /// for the request.
     public let additionalHeaders: [String: String]?
 
     // MARK: - Life cycle
