@@ -6,8 +6,9 @@ extension URL {
         configuration: NetworkConfiguration,
         networkRequest: NetworkRequest<RequestModel, ResponseModel>
     ) throws -> URL {
-        let url = configuration
-            .baseURL
+        let baseURL = networkRequest.baseURL ?? configuration.baseURL
+
+        let url = baseURL
             .appendingPathComponent(networkRequest.path)
 
         var components = URLComponents(

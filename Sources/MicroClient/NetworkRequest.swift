@@ -21,6 +21,10 @@ public struct NetworkRequest<
     /// form item as for an HTTP POST request.
     public let formItems: [URLFormItem]?
 
+    /// The base URL used for the request. If present, it overrides
+    /// `NetworkConfiguration.baseURL`.
+    public let baseURL: URL?
+
     /// The data sent as the message body of a request, such
     /// as for an HTTP POST request.
     public let body: RequestModel?
@@ -47,6 +51,7 @@ public struct NetworkRequest<
         queryItems: [URLQueryItem]? = nil,
         formItems: [URLFormItem]? = nil,
         body: RequestModel? = nil,
+        baseURL: URL? = nil,
         decoder: JSONDecoder? = nil,
         encoder: JSONEncoder? = nil,
         additionalHeaders: [String: String]? = nil
@@ -56,6 +61,7 @@ public struct NetworkRequest<
         self.queryItems = queryItems
         self.formItems = formItems
         self.body = body
+        self.baseURL = baseURL
         self.decoder = decoder
         self.encoder = encoder
         self.additionalHeaders = additionalHeaders
