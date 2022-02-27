@@ -46,7 +46,7 @@ public struct NetworkRequest<
     // MARK: - Life cycle
 
     public init(
-        path: String?,
+        path: String? = nil,
         method: HTTPMethod,
         queryItems: [URLQueryItem]? = nil,
         formItems: [URLFormItem]? = nil,
