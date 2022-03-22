@@ -1,12 +1,24 @@
 import Foundation
 
+/// The network client interface.
 public protocol NetworkClientProtocol {
 
+    /// Initializes the client with a given configuration.
+    /// - Parameter configuration: The client configuration.
+    init(
+        configuration: NetworkConfiguration
+    )
+
+    /// Performs the network request.
+    ///
+    /// - Parameter networkRequest: The network request to perform.
+    /// - Returns: The network response.
     func run<RequestModel, ResponseModel>(
         _ networkRequest: NetworkRequest<RequestModel, ResponseModel>
     ) async throws -> NetworkResponse<ResponseModel>
 }
 
+/// The network client, conforming to the `NetworkClientProtocol` protocol.
 public final class NetworkClient: NetworkClientProtocol {
 
     // MARK: - Properties

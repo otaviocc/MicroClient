@@ -1,5 +1,6 @@
 import Foundation
 
+/// A single name-value pair from the form portion of a request.
 public struct URLFormItem {
 
     // MARK: - Properties
@@ -12,6 +13,10 @@ public struct URLFormItem {
 
     // MARK: - Life cycle
 
+    /// Initializes a form item.
+    /// - Parameters:
+    ///   - name: The name of the form item.
+    ///   - value: The value of the form item.
     public init(
         name: String,
         value: String?

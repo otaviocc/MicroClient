@@ -1,5 +1,10 @@
 import Foundation
 
+/// The network request.
+///
+/// The network request uses types for the request
+/// model and response models, encodable and decodable
+/// types respectively.
 public struct NetworkRequest<
     RequestModel,
     ResponseModel

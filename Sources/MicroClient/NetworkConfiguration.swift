@@ -1,5 +1,6 @@
 import Foundation
 
+/// The network client configuration.
 public final class NetworkConfiguration {
 
     /// The session used to perform the network requests.

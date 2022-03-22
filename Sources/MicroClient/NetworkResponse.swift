@@ -1,5 +1,7 @@
 import Foundation
 
+/// The network response. It has the type
+/// used as response model.
 public struct NetworkResponse<ResponseModel> {
 
     // MARK: - Properties
