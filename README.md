@@ -4,7 +4,7 @@
 
 ## Documentation
 
-The complete documentation, built using [Swift-DocC](https://github.com/apple/swift-docc), can be found [here](https://microclientswift.github.io/MicroClient/documentation/microclient/).
+The complete documentation, built using [Swift-DocC](https://github.com/apple/swift-docc), can be found [here](https://otaviocc.github.io/MicroClient//documentation/microclient/).
 
 ## Examples
 
