@@ -9,12 +9,10 @@ on:
 jobs:
   build:
 
-    runs-on: macos-latest
+    runs-on: macos-12
 
     steps:
-    - uses: fwal/setup-swift@v1
-      with:
-        swift-version: "5.6"
+    - uses: actions/checkout@v2
     - name: Build
       run: swift build -v
     - name: Run tests
