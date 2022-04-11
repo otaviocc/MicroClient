@@ -8,5 +8,6 @@ The complete documentation, built using [Swift-DocC](https://github.com/apple/sw
 
 ## Examples
 
-* [MicroAPI: µ API - a Micro.blog API client](https://github.com/otaviocc/MicroAPI) uses MicroClient to access Micro.blog APIs. It also implements photo upload - `multipart/form-data` - using MicroClient.
-* [PinboardKit](https://github.com/otaviocc/PinboardKit) uses MicroClient to access Pinboard's APIs.
+* [MicroblogAPI](https://github.com/otaviocc/MicroblogAPI) uses MicroClient to access Micro.blog APIs. It also implements photo upload - `multipart/form-data` - using MicroClient.
+* [MicroPinboardAPI](https://github.com/otaviocc/MicroPinboardAPI) uses MicroClient to access Pinboard's APIs.
+* [MicropubAPI](https://github.com/otaviocc/MicropubAPI) uses MicroClient to access Micropub APIs.
