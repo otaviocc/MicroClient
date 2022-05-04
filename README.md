@@ -2,8 +2,6 @@
 
 **MicroClient** is a simple and lightweight network client which can be used by all sorts of projects.
 
-[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/Z8Z0C9KPT)
-
 ## Documentation
 
 The complete documentation, built using [Swift-DocC](https://github.com/apple/swift-docc), can be found [here](https://otaviocc.github.io/MicroClient/documentation/microclient/).
