@@ -17,10 +17,6 @@ public protocol NetworkClientProtocol {
     func run<RequestModel, ResponseModel>(
         _ networkRequest: NetworkRequest<RequestModel, ResponseModel>
     ) async throws -> NetworkResponse<ResponseModel>
-}
-
-/// The network client status provider.
-public protocol NetworkClientStatusProvider {
 
     /// Publishes the network client status.
     ///
@@ -33,7 +29,7 @@ public protocol NetworkClientStatusProvider {
 }
 
 /// The network client, conforming to the `NetworkClientProtocol` protocol.
-public final class NetworkClient: NetworkClientProtocol, NetworkClientStatusProvider {
+public final class NetworkClient: NetworkClientProtocol {
 
     // MARK: - Properties
 
