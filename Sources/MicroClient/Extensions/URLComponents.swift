@@ -17,7 +17,7 @@ extension URL {
             resolvingAgainstBaseURL: false
         )
 
-        components?.queryItems = networkRequest.queryItems?
+        components?.queryItems = networkRequest.queryItems
             .filter { $0.value != nil }
 
         return try unwrap(

@@ -20,7 +20,7 @@ public struct NetworkRequest<
     public let method: HTTPMethod
 
     /// The query URL component as an array of name/value pairs.
-    public let queryItems: [URLQueryItem]?
+    public let queryItems: [URLQueryItem]
 
     /// The data sent as the message body of a request as
     /// form item as for an HTTP POST request.
@@ -53,7 +53,7 @@ public struct NetworkRequest<
     public init(
         path: String? = nil,
         method: HTTPMethod,
-        queryItems: [URLQueryItem]? = nil,
+        queryItems: [URLQueryItem] = [],
         formItems: [URLFormItem]? = nil,
         body: RequestModel? = nil,
         baseURL: URL? = nil,
