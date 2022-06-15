@@ -23,6 +23,12 @@ public final class NetworkConfiguration {
     /// if necessary.
     public var interceptor: ((URLRequest) -> URLRequest)?
 
+    /// Initializes the network client confirmation.
+    /// - Parameters:
+    ///   - session: The session used to perform the network requests.
+    ///   - defaultDecoder: he default JSON decoder.
+    ///   - defaultEncoder: The default JSON encoder.
+    ///   - baseURL: The base URL component.
     public init(
         session: URLSession,
         defaultDecoder: JSONDecoder,

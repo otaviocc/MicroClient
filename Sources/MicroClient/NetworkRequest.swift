@@ -50,6 +50,17 @@ public struct NetworkRequest<
 
     // MARK: - Life cycle
 
+    /// Initializes the request model.
+    /// - Parameters:
+    ///   - path: The request request.
+    ///   - method: The HTTP request method.
+    ///   - queryItems: The query URL component as an array of name/value pairs.
+    ///   - formItems: The data sent as the message body of a request as form item.
+    ///   - body: The data sent as the message body of a request.
+    ///   - baseURL: The base URL used for the request.
+    ///   - decoder: The decoder used to decode the `ResponseModel`.
+    ///   - encoder: The encoder used to encode the `RequestModel`.
+    ///   - additionalHeaders: A dictionary containing additional header fields.
     public init(
         path: String? = nil,
         method: HTTPMethod,
