@@ -11,4 +11,14 @@ public struct NetworkResponse<ResponseModel> {
 
     /// The network response.
     public let response: URLResponse
+
+    // MARK: - Life cycle
+
+    public init(
+        value: ResponseModel,
+        response: URLResponse
+    ) {
+        self.value = value
+        self.response = response
+    }
 }
