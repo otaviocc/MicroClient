@@ -6,10 +6,6 @@ import Foundation
 @Suite("NetworkRequest HTTP Body Tests")
 struct NetworkRequestHTTPBodyTests {
 
-    struct TestModel: Encodable {
-        let value: String
-    }
-
     @Test("It should return form data when form items are present")
     func returnFormDataWhenFormItemsPresent() throws {
         let formItems = [
@@ -43,8 +39,8 @@ struct NetworkRequestHTTPBodyTests {
 
     @Test("It should return JSON data when body is present")
     func returnJSONDataWhenBodyPresent() throws {
-        let testModel = TestModel(value: "test data")
-        let request = NetworkRequest<TestModel, VoidResponse>(
+        let testModel = TestModelMother.makeHTTPBodyTestModel(value: "test data")
+        let request = NetworkRequest<HTTPBodyTestModel, VoidResponse>(
             method: .post,
             body: testModel
         )
@@ -81,10 +77,10 @@ struct NetworkRequestHTTPBodyTests {
 
     @Test("It should prefer form items over body")
     func preferFormItemsOverBody() throws {
-        let testModel = TestModel(value: "should not appear")
+        let testModel = TestModelMother.makeHTTPBodyTestModel(value: "should not appear")
         let formItems = [URLFormItem(name: "field", value: "form data")]
 
-        let request = NetworkRequest<TestModel, VoidResponse>(
+        let request = NetworkRequest<HTTPBodyTestModel, VoidResponse>(
             method: .post,
             formItems: formItems,
             body: testModel
@@ -106,12 +102,12 @@ struct NetworkRequestHTTPBodyTests {
 
     @Test("It should use custom encoder when provided")
     func useCustomEncoderWhenProvided() throws {
-        let testModel = TestModel(value: "test")
+        let testModel = TestModelMother.makeHTTPBodyTestModel()
 
         let customEncoder = JSONEncoder()
         customEncoder.keyEncodingStrategy = .convertToSnakeCase
 
-        let request = NetworkRequest<TestModel, VoidResponse>(
+        let request = NetworkRequest<HTTPBodyTestModel, VoidResponse>(
             method: .post,
             body: testModel,
             encoder: customEncoder

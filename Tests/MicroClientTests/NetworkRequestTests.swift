@@ -6,16 +6,6 @@ import Foundation
 @Suite("NetworkRequest Tests")
 struct NetworkRequestTests {
 
-    struct TestRequestModel: Encodable, Equatable {
-        let id: Int
-        let name: String
-    }
-
-    struct TestResponseModel: Decodable, Equatable {
-        let success: Bool
-        let message: String
-    }
-
     // swiftlint:disable function_body_length
     @Test("It should initialize with all parameters")
     func initializeWithAllParameters() throws {
@@ -23,13 +13,13 @@ struct NetworkRequestTests {
         let method: HTTPMethod = .post
         let queryItems = [URLQueryItem(name: "param", value: "value")]
         let formItems = [URLFormItem(name: "field", value: "data")]
-        let body = TestRequestModel(id: 1, name: "test")
+        let body = TestModelMother.makeNetworkRequestTestModel()
         let baseURL = try #require(URL(string: "https://api.example.com"))
         let decoder = JSONDecoder()
         let encoder = JSONEncoder()
         let additionalHeaders = ["Authorization": "Bearer token"]
 
-        let request = NetworkRequest<TestRequestModel, TestResponseModel>(
+        let request = NetworkRequest<NetworkRequestTestModel, NetworkRequestResponseModel>(
             path: path,
             method: method,
             queryItems: queryItems,

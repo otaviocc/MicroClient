@@ -6,31 +6,9 @@ import Foundation
 @Suite("NetworkResponse with Complex Models Tests")
 struct NetworkResponseComplexModelsTests {
 
-    struct ComplexModel: Decodable, Equatable {
-        let id: UUID
-        let metadata: [String: String]
-        let timestamps: [Date]
-        let isActive: Bool
-
-        static func == (
-            lhs: ComplexModel,
-            rhs: ComplexModel
-        ) -> Bool {
-            lhs.id == rhs.id &&
-                   lhs.metadata == rhs.metadata &&
-                   lhs.timestamps == rhs.timestamps &&
-                   lhs.isActive == rhs.isActive
-        }
-    }
-
     @Test("It should work with complex nested models")
     func workWithComplexNestedModels() throws {
-        let complexModel = ComplexModel(
-            id: UUID(),
-            metadata: ["key1": "value1", "key2": "value2"],
-            timestamps: [Date(), Date().addingTimeInterval(-3600)],
-            isActive: true
-        )
+        let complexModel = TestModelMother.makeComplexModel()
 
         let url = try #require(URL(string: "https://api.example.com/complex"))
         let httpResponse = try #require(HTTPURLResponse(

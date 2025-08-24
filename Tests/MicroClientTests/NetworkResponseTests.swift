@@ -34,12 +34,7 @@ struct NetworkResponseTests {
 
     @Test("It should work with Decodable struct")
     func workWithDecodableStruct() throws {
-        struct TestModel: Decodable, Equatable {
-            let id: Int
-            let name: String
-        }
-
-        let testModel = TestModel(id: 123, name: "Test")
+        let testModel = TestModelMother.makeResponseTestModel()
         let url = try #require(URL(string: "https://api.example.com/users/123"))
         let urlResponse = URLResponse(
             url: url,

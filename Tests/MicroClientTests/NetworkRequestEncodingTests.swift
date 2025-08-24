@@ -6,16 +6,10 @@ import Foundation
 @Suite("NetworkRequest Encoding Tests")
 struct NetworkRequestEncodingTests {
 
-    struct TestModel: Encodable {
-        let id: Int
-        let name: String
-    }
-
     @Test("It should encode model using default encoder")
     func encodeModelUsingDefaultEncoder() throws {
-        let testModel = TestModel(id: 1, name: "test")
-        let request = NetworkRequest<TestModel, VoidResponse>(method: .post)
-
+        let testModel = TestModelMother.makeNetworkRequestTestModel()
+        let request = NetworkRequest<NetworkRequestTestModel, VoidResponse>(method: .post)
         let defaultEncoder = JSONEncoder()
         let encodedData = try request.encode(
             payload: testModel,
@@ -36,12 +30,12 @@ struct NetworkRequestEncodingTests {
 
     @Test("It should encode model using custom encoder")
     func encodeModelUsingCustomEncoder() throws {
-        let testModel = TestModel(id: 1, name: "test")
+        let testModel = TestModelMother.makeNetworkRequestTestModel()
 
         let customEncoder = JSONEncoder()
         customEncoder.keyEncodingStrategy = .convertToSnakeCase
 
-        let request = NetworkRequest<TestModel, VoidResponse>(
+        let request = NetworkRequest<NetworkRequestTestModel, VoidResponse>(
             method: .post,
             encoder: customEncoder
         )
@@ -62,7 +56,6 @@ struct NetworkRequestEncodingTests {
     func returnDataDirectlyWhenPayloadIsData() throws {
         let originalData = Data("raw data".utf8)
         let request = NetworkRequest<Data, VoidResponse>(method: .post)
-
         let defaultEncoder = JSONEncoder()
         let encodedData = try request.encode(
             payload: originalData,

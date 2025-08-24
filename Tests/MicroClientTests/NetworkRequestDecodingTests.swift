@@ -6,26 +6,20 @@ import Foundation
 @Suite("NetworkRequest Decoding Tests")
 struct NetworkRequestDecodingTests {
 
-    struct TestModel: Decodable, Equatable {
-        let id: Int
-        let message: String
-    }
-
     @Test("It should decode data using default decoder")
     func decodeDataUsingDefaultDecoder() throws {
         let jsonData = Data("""
         {"id": 123, "message": "success"}
         """.utf8)
 
-        let request = NetworkRequest<VoidRequest, TestModel>(method: .get)
-
+        let request = NetworkRequest<VoidRequest, DecodingTestModel>(method: .get)
         let defaultDecoder = JSONDecoder()
         let decodedModel = try request.decode(
             data: jsonData,
             defaultDecoder: defaultDecoder
         )
 
-        let expectedModel = TestModel(id: 123, message: "success")
+        let expectedModel = TestModelMother.makeDecodingTestModel()
         #expect(
             decodedModel == expectedModel,
             "It should decode data correctly using default decoder"
@@ -41,12 +35,7 @@ struct NetworkRequestDecodingTests {
         let customDecoder = JSONDecoder()
         customDecoder.keyDecodingStrategy = .convertFromSnakeCase
 
-        struct CustomModel: Decodable, Equatable {
-            let id: Int
-            let customMessage: String
-        }
-
-        let request = NetworkRequest<VoidRequest, CustomModel>(
+        let request = NetworkRequest<VoidRequest, CustomDecodingModel>(
             method: .get,
             decoder: customDecoder
         )
@@ -57,7 +46,7 @@ struct NetworkRequestDecodingTests {
             defaultDecoder: defaultDecoder
         )
 
-        let expectedModel = CustomModel(id: 123, customMessage: "success")
+        let expectedModel = TestModelMother.makeCustomDecodingModel()
         #expect(
             decodedModel == expectedModel,
             "It should decode data correctly using custom decoder"
@@ -71,7 +60,6 @@ struct NetworkRequestDecodingTests {
         """.utf8)
 
         let request = NetworkRequest<VoidRequest, VoidResponse>(method: .get)
-
         let defaultDecoder = JSONDecoder()
         let decodedModel = try request.decode(
             data: jsonData,
@@ -88,7 +76,6 @@ struct NetworkRequestDecodingTests {
     func handleEmptyDataForVoidResponse() throws {
         let emptyData = Data()
         let request = NetworkRequest<VoidRequest, VoidResponse>(method: .get)
-
         let defaultDecoder = JSONDecoder()
         let decodedModel = try request.decode(
             data: emptyData,
