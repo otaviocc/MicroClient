@@ -19,6 +19,10 @@ let package = Package(
         .target(
             name: "MicroClient",
             dependencies: []
+        ),
+        .testTarget(
+            name: "MicroClientTests",
+            dependencies: ["MicroClient"]
         )
     ]
 )
