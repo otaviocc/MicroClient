@@ -1,5 +1,6 @@
 import Testing
 import Foundation
+
 @testable import MicroClient
 
 @Suite("NetworkConfiguration Tests")
@@ -233,7 +234,6 @@ struct NetworkConfigurationTests {
 
         let configuration2 = configuration1
 
-        // Modify interceptor on one reference
         configuration1.interceptor = { request in request }
 
         #expect(

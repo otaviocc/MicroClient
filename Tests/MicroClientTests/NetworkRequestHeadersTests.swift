@@ -1,5 +1,6 @@
 import Testing
 import Foundation
+
 @testable import MicroClient
 
 @Suite("NetworkRequest Headers Tests")

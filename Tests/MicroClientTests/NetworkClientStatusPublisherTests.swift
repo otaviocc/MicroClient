@@ -72,9 +72,7 @@ struct NetworkClientStatusPublisherTests {
 
         do {
             _ = try await client.run(request)
-        } catch {
-            // Expected to fail
-        }
+        } catch { }
 
         try await Task.sleep(nanoseconds: 100_000_000)
 

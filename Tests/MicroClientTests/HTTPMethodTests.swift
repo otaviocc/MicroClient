@@ -1,4 +1,5 @@
 import Testing
+
 @testable import MicroClient
 
 @Suite("HTTPMethod Tests")

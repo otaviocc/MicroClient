@@ -1,7 +1,6 @@
 import Foundation
-@testable import MicroClient
 
-// MARK: - Test Models
+@testable import MicroClient
 
 struct TestRequestModel: Encodable, Equatable {
     let id: Int
@@ -18,11 +17,7 @@ struct TestResponseModel: Decodable, Equatable {
     }
 }
 
-// MARK: - Test Model Mother
-
 enum TestModelMother {
-
-    // MARK: - TestRequestModel
 
     static func makeTestRequestModel(
         id: Int = 123,
@@ -33,8 +28,6 @@ enum TestModelMother {
             name: name
         )
     }
-
-    // MARK: - TestResponseModel
 
     static func makeTestResponseModel(
         success: Bool = true,
@@ -67,8 +60,6 @@ enum TestModelMother {
             data: nil
         )
     }
-
-    // MARK: - TestData
 
     static func makeTestData(
         value: String = "test"

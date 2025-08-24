@@ -1,15 +1,14 @@
 import Foundation
+
 @testable import MicroClient
 
-// MARK: - NetworkClient Mother
+// swiftlint:disable force_unwrapping
 
 enum NetworkClientMother {
 
-    // MARK: - NetworkClient
-
     static func makeNetworkClient(
         session: URLSessionProtocol = URLSessionMock(),
-        baseURL: URL = URL(string: "https://api.example.com")!, // swiftlint:disable:this force_unwrapping
+        baseURL: URL = URL(string: "https://api.example.com")!,
         decoder: JSONDecoder = JSONDecoder(),
         encoder: JSONEncoder = JSONEncoder()
     ) -> NetworkClient {
@@ -23,13 +22,9 @@ enum NetworkClientMother {
         return NetworkClient(configuration: configuration)
     }
 
-    // MARK: - URLSessionMock
-
     static func makeMockSession() -> URLSessionMock {
         URLSessionMock()
     }
-
-    // MARK: - HTTPURLResponse
 
     static func makeSuccessResponse(
         for url: URL,
@@ -42,7 +37,7 @@ enum NetworkClientMother {
             statusCode: statusCode,
             httpVersion: httpVersion,
             headerFields: headerFields
-        )! // swiftlint:disable:this force_unwrapping
+        )!
     }
 
     static func makeErrorResponse(
@@ -56,7 +51,7 @@ enum NetworkClientMother {
             statusCode: statusCode,
             httpVersion: httpVersion,
             headerFields: headerFields
-        )! // swiftlint:disable:this force_unwrapping
+        )!
     }
 
     static func makeNotFoundResponse(
@@ -69,14 +64,12 @@ enum NetworkClientMother {
             statusCode: 404,
             httpVersion: httpVersion,
             headerFields: headerFields
-        )! // swiftlint:disable:this force_unwrapping
+        )!
     }
-
-    // MARK: - NetworkConfiguration
 
     static func makeNetworkConfiguration(
         session: URLSessionProtocol = URLSessionMock(),
-        baseURL: URL = URL(string: "https://api.example.com")!, // swiftlint:disable:this force_unwrapping
+        baseURL: URL = URL(string: "https://api.example.com")!,
         decoder: JSONDecoder = JSONDecoder(),
         encoder: JSONEncoder = JSONEncoder(),
         interceptor: ((URLRequest) -> URLRequest)? = nil
@@ -93,3 +86,5 @@ enum NetworkClientMother {
         return configuration
     }
 }
+
+// swiftlint:enable force_unwrapping
