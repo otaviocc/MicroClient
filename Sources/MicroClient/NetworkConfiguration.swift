@@ -4,7 +4,7 @@ import Foundation
 public final class NetworkConfiguration {
 
     /// The session used to perform the network requests.
-    public let session: URLSession
+    public let session: URLSessionProtocol
 
     /// The default JSON decoder. It can be overwritten by
     /// individual requests, if necessary.
@@ -30,7 +30,7 @@ public final class NetworkConfiguration {
     ///   - defaultEncoder: The default JSON encoder.
     ///   - baseURL: The base URL component.
     public init(
-        session: URLSession,
+        session: URLSessionProtocol,
         defaultDecoder: JSONDecoder,
         defaultEncoder: JSONEncoder,
         baseURL: URL

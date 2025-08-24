@@ -20,7 +20,7 @@ struct NetworkConfigurationTests {
         )
 
         #expect(
-            configuration.session === session,
+            (configuration.session as? URLSession) === session,
             "It should store the provided session"
         )
         #expect(
@@ -56,7 +56,7 @@ struct NetworkConfigurationTests {
         )
 
         #expect(
-            configuration.session === customSession,
+            (configuration.session as? URLSession) === customSession,
             "It should store the custom URLSession"
         )
     }
