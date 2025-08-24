@@ -115,6 +115,8 @@ Future tests will use **Apple's Swift Testing framework** (`import Testing`) wit
 - Use descriptive test names with `@Test("It should...")` following the pattern: "It should [expected behavior]"
 - Test method names should be descriptive without the `test` prefix (not required in Swift Testing framework)
 - Follow **Given/When/Then** structure within test methods for clarity
+- Use `try #require()` to avoid force unwrapping. Test method need to be marked with `throws`.
+  E.g. `try #require(URL(string:"https://...."))`
 
 #### Assertion Format
 - Use `#expect()` for all test assertions with **one argument per line**
