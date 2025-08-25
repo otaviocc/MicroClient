@@ -13,6 +13,9 @@ MicroClient is a lightweight, zero-dependency Swift networking library designed 
 # Build the package
 swift build
 
+# Run tests
+swift test
+
 # Run SwiftLint (comprehensive ruleset with 61+ rules)
 swiftlint
 
@@ -64,11 +67,18 @@ Sources/MicroClient/
 ├── NetworkRequest.swift          # Request model
 ├── NetworkResponse.swift         # Response wrapper  
 ├── NetworkConfiguration.swift    # Configuration
-├── Types.swift                   # Core enums and utilities
+├── HTTPMethod.swift              # HTTP method enumeration
+├── NetworkClientError.swift      # Error types
+├── NetworkClientStatus.swift     # Client status enumeration
+├── URLFormItem.swift            # Form data item type
+├── Responses/
+│   ├── VoidRequest.swift        # Empty request type
+│   └── VoidResponse.swift       # Empty response type
 └── Extensions/
     ├── URLRequest.swift         # Request building logic
     ├── URLComponents.swift      # URL construction
     ├── URLResponse.swift        # Response utilities
+    ├── URLSessionProtocol.swift # URLSession protocol abstraction
     └── Unwrap.swift            # Utility functions
 ```
 
@@ -101,14 +111,14 @@ See README.md for detailed usage examples and API documentation.
 ## Development Patterns
 
 ### Testing Structure
-Future test implementation will include:
+The project includes comprehensive tests with:
 - **Unit tests**: Test individual components in isolation
 - **Integration tests**: Test interactions between modules
 - **Mock objects**: `*Mock.swift` files provide test doubles
 - **Test fixtures**: `*Mother.swift` files provide test data builders
 
 ### Unit Testing Guidelines
-Future tests will use **Apple's Swift Testing framework** (`import Testing`) with the following conventions:
+Tests use **Apple's Swift Testing framework** (`import Testing`) with the following conventions:
 
 #### Test Structure and Organization
 - Tests are organized using `@Suite("Suite Name")` to group related test cases
