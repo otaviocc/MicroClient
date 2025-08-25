@@ -1,5 +1,4 @@
 opt_in_rules:
-  - anyobject_protocol
   - array_init
   - block_based_kvo
   - closure_end_indentation
@@ -22,7 +21,6 @@ opt_in_rules:
   - force_try
   - force_unwrapping
   - implicit_return
-  - inert_defer
   - joined_default_parameter
   - last_where
   - legacy_random

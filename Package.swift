@@ -1,4 +1,4 @@
-// swift-tools-version:5.6
+// swift-tools-version:6.0
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -14,11 +14,23 @@ let package = Package(
             targets: ["MicroClient"]
         )
     ],
-    dependencies: [],
+    dependencies: [
+        .package(url: "https://github.com/SimplyDanny/SwiftLintPlugins", branch: "main")
+    ],
     targets: [
         .target(
             name: "MicroClient",
-            dependencies: []
+            dependencies: [],
+            plugins: [
+                .plugin(name: "SwiftLintBuildToolPlugin", package: "SwiftLintPlugins")
+            ]
+        ),
+        .testTarget(
+            name: "MicroClientTests",
+            dependencies: ["MicroClient"],
+            plugins: [
+                .plugin(name: "SwiftLintBuildToolPlugin", package: "SwiftLintPlugins")
+            ]
         )
     ]
 )

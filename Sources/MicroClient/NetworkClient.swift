@@ -65,7 +65,8 @@ public final class NetworkClient: NetworkClientProtocol {
         }
 
         let (data, response) = try await configuration.session.data(
-            for: request
+            for: request,
+            delegate: nil
         )
 
         return NetworkResponse(

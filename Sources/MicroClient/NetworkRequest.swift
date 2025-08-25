@@ -130,6 +130,7 @@ extension NetworkRequest {
         defaultDecoder: JSONDecoder
     ) throws -> ResponseModel {
         guard ResponseModel.self != VoidResponse.self else {
+            // swiftlint:disable:next force_cast
             return VoidResponse() as! ResponseModel
         }
 
