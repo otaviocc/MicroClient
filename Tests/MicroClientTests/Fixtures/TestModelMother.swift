@@ -87,18 +87,6 @@ enum TestModelMother {
         )
     }
 
-    static func makeTestResponseModel(
-        success: Bool = true,
-        message: String = "Success",
-        data: TestResponseModel.TestData? = makeTestData()
-    ) -> TestResponseModel {
-        TestResponseModel(
-            success: success,
-            message: message,
-            data: data
-        )
-    }
-
     static func makeSuccessfulResponseModel(
         message: String = "Created successfully"
     ) -> TestResponseModel {
@@ -107,22 +95,6 @@ enum TestModelMother {
             message: message,
             data: TestResponseModel.TestData(value: "test")
         )
-    }
-
-    static func makeFailedResponseModel(
-        message: String = "Operation failed"
-    ) -> TestResponseModel {
-        TestResponseModel(
-            success: false,
-            message: message,
-            data: nil
-        )
-    }
-
-    static func makeTestData(
-        value: String = "test"
-    ) -> TestResponseModel.TestData {
-        TestResponseModel.TestData(value: value)
     }
 
     // MARK: - NetworkRequest Models
@@ -134,16 +106,6 @@ enum TestModelMother {
         NetworkRequestTestModel(
             id: id,
             name: name
-        )
-    }
-
-    static func makeNetworkRequestResponseModel(
-        success: Bool = true,
-        message: String = "Success"
-    ) -> NetworkRequestResponseModel {
-        NetworkRequestResponseModel(
-            success: success,
-            message: message
         )
     }
 
