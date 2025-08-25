@@ -1,5 +1,9 @@
 # MicroClient
 
+[![codecov](https://codecov.io/github/otaviocc/MicroClient/graph/badge.svg?token=684ATBMZH4)](https://codecov.io/github/otaviocc/MicroClient)
+[![Check Runs](https://img.shields.io/github/check-runs/otaviocc/MicroClient/main)](https://github.com/otaviocc/MicroClient/actions?query=branch%3Amain)
+[![Mastodon Follow](https://img.shields.io/mastodon/follow/109580944375344260?domain=social.lol&style=flat)](https://social.lol/@otaviocc)
+
 A lightweight, zero-dependency Swift networking library designed for type-safe HTTP requests using modern Swift concurrency.
 
 ## Features
