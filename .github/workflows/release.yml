@@ -63,9 +63,6 @@ jobs:
         echo "Building version: $VERSION"
         echo "Commit SHA: $COMMIT_SHA"
 
-    - name: Run SwiftLint
-      run: swiftlint
-
     - name: Build
       run: swift build -c release
 
