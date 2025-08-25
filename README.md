@@ -1,46 +1,123 @@
 # MicroClient
 
-**Simple** and **lightweight** network client which can be used by all sorts of projects.
+A lightweight, zero-dependency Swift networking library designed for type-safe HTTP requests using modern Swift concurrency.
 
-## Components
+## Features
 
-The main components are:
+- 🔒 **Type-safe**: Compile-time safety with generic request/response models
+- ⚡ **Modern**: Built with async/await and Combine integration
+- 🪶 **Lightweight**: Zero dependencies, minimal footprint
+- ⚙️ **Configurable**: Global defaults with per-request customization
+- 🔄 **Interceptors**: Middleware support for request modification
+- 📱 **Cross-platform**: Supports macOS 12+ and iOS 15+
 
-* ``NetworkClient``: The network client itself. The client is a concrete implementation of the ``NetworkClientProtocol`` protocol.
-* ``NetworkRequest``: The request definition.
-* ``NetworkResponse``: The network response, containing both the `URLResponse` and the decodable response.
-* ``NetworkConfiguration``: The network client configuration.
+## Requirements
 
-### Network Client
+- Swift 6.0+
+- macOS 12.0+ / iOS 15.0+
 
-The network client interface is initialized with its configuration, ``NetworkConfiguration``, and contains a method which performs the network request, `NetworkClientProtocol.run(_:)`.
+## Installation
+
+### Swift Package Manager
+
+Add MicroClient to your project using Xcode's package manager or by adding it to your `Package.swift`:
 
 ```swift
-public protocol NetworkClientProtocol {
-    init(configuration: NetworkConfiguration)
+dependencies: [
+    .package(url: "https://github.com/otaviocc/MicroClient", from: "1.0.0")
+]
+```
 
-    func run<RequestModel, ResponseModel>(
-        _ networkRequest: NetworkRequest<RequestModel, ResponseModel>
-    ) async throws -> NetworkResponse<ResponseModel>
+## Quick Start
+
+### 1. Create a Configuration
+
+```swift
+import MicroClient
+
+let configuration = NetworkConfiguration(
+    session: .shared,
+    baseURL: URL(string: "https://api.example.com")!
+)
+
+let client = NetworkClient(configuration: configuration)
+```
+
+### 2. Define Your Models
+
+```swift
+struct User: Codable {
+    let id: Int
+    let name: String
+    let email: String
+}
+
+struct CreateUserRequest: Encodable {
+    let name: String
+    let email: String
 }
 ```
 
-### Network Request
-
-The network request contains two types, `RequestModel` and `ResponseModel`. These types conform to `Encodable` and `Decodable` protocols, respectively.
+### 3. Make Requests
 
 ```swift
-public struct NetworkRequest<
-    RequestModel,
-    ResponseModel
-> where RequestModel: Encodable, ResponseModel: Decodable
+// GET request
+let getUserRequest = NetworkRequest<VoidRequest, User>(
+    path: "/users/123",
+    method: .get
+)
+
+let userResponse = try await client.run(getUserRequest)
+let user = userResponse.value
+
+// POST request with body
+let createUserRequest = NetworkRequest<CreateUserRequest, User>(
+    path: "/users",
+    method: .post,
+    body: CreateUserRequest(name: "John Doe", email: "john@example.com")
+)
+
+let newUserResponse = try await client.run(createUserRequest)
 ```
 
-The network request can be initialized with several properties, most of them optional, used to override the network configuration when applicable. E.g., the network client might need to use a different decoder or encoder for the request, or might require additional headers. 
+## Architecture
 
-### Network Response
+MicroClient is built around four core components that work together:
 
-As previously mentioned, the network request contains both the original `URLResponse` and the payload decodable to `ResponseModel`.
+### NetworkClient
+
+The main client interface providing async/await API and Combine integration:
+
+```swift
+public protocol NetworkClientProtocol {
+    func run<RequestModel, ResponseModel>(
+        _ networkRequest: NetworkRequest<RequestModel, ResponseModel>
+    ) async throws -> NetworkResponse<ResponseModel>
+    
+    func statusPublisher() -> AnyPublisher<NetworkClientStatus, Never>
+}
+```
+
+### NetworkRequest
+
+Type-safe request definitions with generic constraints:
+
+```swift
+public struct NetworkRequest<RequestModel, ResponseModel> 
+where RequestModel: Encodable, ResponseModel: Decodable {
+    public let path: String?
+    public let method: HTTPMethod
+    public let queryItems: [URLQueryItem]?
+    public let formItems: [URLFormItem]?
+    public let body: RequestModel?
+    public let additionalHeaders: [String: String]?
+    // ... configuration overrides
+}
+```
+
+### NetworkResponse
+
+Wraps decoded response with original URLResponse metadata:
 
 ```swift
 public struct NetworkResponse<ResponseModel> {
@@ -49,106 +126,142 @@ public struct NetworkResponse<ResponseModel> {
 }
 ```
 
-### Configuration
+### NetworkConfiguration
 
-The network client can be configured with default encoders and decoders, hostname, session, etc...
+Centralized configuration with override capability:
 
 ```swift
 public final class NetworkConfiguration {
-
-    /// The session used to perform the network requests.
     public let session: URLSession
-
-    /// The default JSON decoder. It can be overwritten by
-    /// individual requests, if necessary.
     public let defaultDecoder: JSONDecoder
-
-    /// The default JSON encoder. It can be overwritten by
-    /// individual requests, if necessary.
     public let defaultEncoder: JSONEncoder
-
-    /// The base URL component.
-    /// E.g., `https://hostname.com/api/v3`
     public let baseURL: URL
-
-    /// The interceptor called right before performing the
-    /// network request. Can be used to modify the `URLRequest`
-    /// if necessary.
     public var interceptor: ((URLRequest) -> URLRequest)?
 }
 ```
 
-## Building Requests
+## Advanced Usage
 
-Requests are built by creating ``NetworkRequest`` instances. Below, a simple `GET` requests which retrieves a list of posts bookmarked by the user.  The network response is `PostsResponse`, which conforms to the `Decodable` protocol.
+### Request Interceptors
+
+Modify requests before they're sent:
 
 ```swift
-let request = NetworkRequest<VoidRequest, PostsResponse>(
-    path: "/posts/bookmarks",
-    method: .get
+configuration.interceptor = { request in
+    var mutableRequest = request
+    mutableRequest.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+    return mutableRequest
 }
 ```
 
-The `NetworkRequest` allows custom encoders and decoders for the request, overriding the default ones from the `NetworkConfiguration`.
+### Custom Encoders/Decoders
+
+Override global configuration per request:
 
 ```swift
-public struct NetworkRequest<
-    RequestModel,
-    ResponseModel
-> where RequestModel: Encodable, ResponseModel: Decodable {
+let customDecoder = JSONDecoder()
+customDecoder.dateDecodingStrategy = .iso8601
 
-    /// The request `/path`, used in combination with the
-    /// `NetworkConfiguration.baseURL`.
-    public let path: String?
+let request = NetworkRequest<VoidRequest, TimestampedResponse>(
+    path: "/events",
+    method: .get,
+    decoder: customDecoder
+)
+```
 
-    /// The HTTP request method.
-    public let method: HTTPMethod
+### Form Data
 
-    /// The query URL component as an array of name/value pairs.
-    public let queryItems: [URLQueryItem]?
+Send form-encoded data:
 
-    /// The data sent as the message body of a request as
-    /// form item as for an HTTP POST request.
-    public let formItems: [URLFormItem]?
+```swift
+let request = NetworkRequest<VoidRequest, LoginResponse>(
+    path: "/auth/login",
+    method: .post,
+    formItems: [
+        URLFormItem(name: "username", value: "user"),
+        URLFormItem(name: "password", value: "pass")
+    ]
+)
+```
 
-    /// The base URL used for the request. If present, it overrides
-    /// `NetworkConfiguration.baseURL`.
-    public let baseURL: URL?
+### Query Parameters
 
-    /// The data sent as the message body of a request, such
-    /// as for an HTTP POST request.
-    public let body: RequestModel?
+Add query parameters to requests:
 
-    /// The decoder used to decode the `ResponseModel`. If not not
-    /// specified `NetworkConfiguration.defaultDecoder`.
-    /// is used instead.
-    public let decoder: JSONDecoder?
+```swift
+let request = NetworkRequest<VoidRequest, SearchResults>(
+    path: "/search",
+    method: .get,
+    queryItems: [
+        URLQueryItem(name: "q", value: "swift"),
+        URLQueryItem(name: "limit", value: "10")
+    ]
+)
+```
 
-    /// The encoder used to encode the `RequestModel`. If not not
-    /// specified `NetworkConfiguration.defaultEncoder`.
-    /// is used instead.
-    public let encoder: JSONEncoder?
+### Status Monitoring
 
-    /// A dictionary containing additional header fields
-    /// for the request.
-    public let additionalHeaders: [String: String]?
+Monitor client activity with Combine:
+
+```swift
+client.statusPublisher()
+    .sink { status in
+        switch status {
+        case .idle:
+            print("Client is idle")
+        case .running:
+            print("Client is performing request")
+        }
+    }
+    .store(in: &cancellables)
+```
+
+## Error Handling
+
+MicroClient provides structured error handling:
+
+```swift
+do {
+    let response = try await client.run(request)
+    // Handle success
+} catch let error as NetworkClientError {
+    switch error {
+    case .invalidURL:
+        // Handle invalid URL
+    case .noData:
+        // Handle empty response
+    case .decodingError(let underlyingError):
+        // Handle JSON decoding errors
+    case .networkError(let underlyingError):
+        // Handle network errors
+    }
+} catch {
+    // Handle other errors
 }
 ```
 
-## Performing Requests
+## Testing
 
-A network requests is performed by calling  `NetworkClientProtocol.run(_:)`.
+MicroClient is designed with testing in mind. The protocol-based architecture makes it easy to create mocks.
 
-```swift
-// Returns NetworkRequest<VoidRequest, PostsResponse>
-let bookmarksRequest = PostsAPIFactory.makeBookmarksRequest()
+## Development
 
-// Returns NetworkResponse<PostsResponse> 
-let bookmarksResponse = try await client.run(bookmarksRequest)
+### Building
+
+```bash
+swift build
 ```
 
-## Examples
+### Testing
 
-* [MicroblogAPI](https://github.com/otaviocc/MicroblogAPI) uses MicroClient to access Micro.blog APIs. It also implements photo upload - `multipart/form-data` - using MicroClient.
-* [MicroPinboardAPI](https://github.com/otaviocc/MicroPinboardAPI) uses MicroClient to access Pinboard's APIs.
-* [MicropubAPI](https://github.com/otaviocc/MicropubAPI) uses MicroClient to access Micropub APIs.
+```bash
+swift test
+```
+
+### Linting
+
+SwiftLint is integrated and run during build.
+
+## License
+
+MicroClient is available under the MIT license. See the LICENSE file for more info.
