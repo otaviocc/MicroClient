@@ -1,0 +1,169 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - '*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to release'
+        required: true
+        type: string
+
+jobs:
+  release:
+    name: Create Release
+    runs-on: macos-latest
+
+    steps:
+    - name: Determine ref to checkout
+      id: ref
+      run: |
+        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          echo "ref=${{ github.event.inputs.tag }}" >> $GITHUB_OUTPUT
+        else
+          echo "ref=${GITHUB_REF}" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ steps.ref.outputs.ref }}
+        fetch-depth: 0
+
+    - name: Setup Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: latest-stable
+
+    - name: Cache Swift Package Manager
+      uses: actions/cache@v4
+      with:
+        path: |
+          .build
+          ~/.cache/org.swift.swiftpm
+        key: ${{ runner.os }}-spm-release-${{ hashFiles('**/Package.resolved') }}
+        restore-keys: |
+          ${{ runner.os }}-spm-release-
+          ${{ runner.os }}-spm-
+
+    - name: Determine version
+      id: version
+      run: |
+        if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+          VERSION="${{ github.event.inputs.tag }}"
+        else
+          VERSION=${GITHUB_REF#refs/tags/}
+        fi
+
+        COMMIT_SHA=$(git rev-parse HEAD)
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "commit_sha=$COMMIT_SHA" >> $GITHUB_OUTPUT
+        echo "Building version: $VERSION"
+        echo "Commit SHA: $COMMIT_SHA"
+
+    - name: Run SwiftLint
+      run: swiftlint
+
+    - name: Build
+      run: swift build -c release
+
+    - name: Run tests
+      run: swift test
+
+    - name: Generate Release Notes
+      id: release_notes
+      run: |
+        BUILD_DATE=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
+
+        cat > release_notes.md << 'EOF'
+        ## 📦 MicroClient ${{ steps.version.outputs.version }}
+
+        MicroClient is a lightweight, zero-dependency Swift networking library designed for type-safe HTTP requests using modern Swift concurrency.
+
+        ### 📋 Requirements
+
+        - **macOS**: 12.0+
+        - **iOS**: 15.0+
+        - **Swift**: 6.0+
+
+        ### 📚 Installation
+
+        #### Swift Package Manager
+
+        Add MicroClient to your `Package.swift`:
+
+        ```swift
+        dependencies: [
+            .package(url: "https://github.com/otaviocc/MicroClient.git", from: "${{ steps.version.outputs.version }}")
+        ]
+        ```
+
+        Or add it via Xcode:
+        1. File → Add Package Dependencies
+        2. Enter: `https://github.com/otaviocc/MicroClient.git`
+        3. Select version: `${{ steps.version.outputs.version }}`
+
+        ### 🚀 Quick Start
+
+        ```swift
+        import MicroClient
+
+        // Configure client
+        let config = NetworkConfiguration(baseURL: URL(string: "https://api.example.com")!)
+        let client = NetworkClient(configuration: config)
+
+        // Define request/response types
+        struct User: Codable {
+            let id: Int
+            let name: String
+        }
+
+        // Make type-safe requests
+        let request = NetworkRequest<VoidRequest, User>(
+            path: "/users/1",
+            method: .get
+        )
+
+        let response = try await client.run(request)
+        print(response.data.name)
+        ```
+
+        ### 📊 Build Information
+
+        - **Build Date**: $BUILD_DATE
+        - **Commit**: ${{ steps.version.outputs.commit_sha }}
+        - **Swift Tools Version**: 6.0
+
+        ### 🔍 Features
+
+        - ✅ **Type-safe**: Generic request/response models with compile-time safety
+        - ✅ **Modern Swift**: Built with async/await and Swift concurrency
+        - ✅ **Zero dependencies**: Pure Swift implementation
+        - ✅ **Flexible**: Configurable encoders, decoders, and interceptors
+        - ✅ **Combine support**: Publisher for client status monitoring
+        - ✅ **Comprehensive testing**: Extensive test coverage with Swift Testing
+
+        EOF
+
+        echo "Generated release notes"
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: ${{ steps.version.outputs.version }}
+        name: "MicroClient ${{ steps.version.outputs.version }}"
+        body_path: release_notes.md
+        draft: false
+        prerelease: false
+        generate_release_notes: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Upload Release Notes Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: release-notes-${{ steps.version.outputs.version }}
+        path: release_notes.md
+        retention-days: 90

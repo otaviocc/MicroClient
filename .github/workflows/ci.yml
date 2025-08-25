@@ -35,8 +35,22 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-spm-
 
+    - name: Run SwiftLint
+      run: swiftlint
+
     - name: Build
       run: swift build
 
     - name: Run tests
       run: swift test --enable-code-coverage
+
+    - name: Generate code coverage report
+      run: |
+        xcrun llvm-cov export -format="lcov" \
+          .build/debug/MicroClientPackageTests.xctest/Contents/MacOS/MicroClientPackageTests \
+          -instr-profile .build/debug/codecov/default.profdata > coverage.lcov
+
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v5
+      with:
+        slug: otaviocc/MicroClient
