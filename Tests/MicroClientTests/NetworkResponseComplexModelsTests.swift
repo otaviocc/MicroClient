@@ -34,7 +34,6 @@ struct NetworkResponseComplexModelsTests {
             networkResponse.response === httpResponse,
             "It should store the HTTPURLResponse"
         )
-
         if let httpUrlResponse = networkResponse.response as? HTTPURLResponse {
             #expect(
                 httpUrlResponse.statusCode == 201,
@@ -42,6 +41,10 @@ struct NetworkResponseComplexModelsTests {
             )
             #expect(
                 httpUrlResponse.allHeaderFields["Location"] as? String == "/api/complex/\(complexModel.id)",
+                "It should preserve HTTP headers for complex models"
+            )
+            #expect(
+                httpResponse.location?.absoluteString == "/api/complex/\(complexModel.id)",
                 "It should preserve HTTP headers for complex models"
             )
         }
