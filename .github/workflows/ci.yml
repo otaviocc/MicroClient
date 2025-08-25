@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [ main ]
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Test on macOS (${{ matrix.xcode-version }})
+    runs-on: macos-latest
+
+    strategy:
+      matrix:
+        xcode-version: [latest-stable, latest]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: ${{ matrix.xcode-version }}
+
+    - name: Cache Swift Package Manager
+      uses: actions/cache@v4
+      with:
+        path: |
+          .build
+          ~/.cache/org.swift.swiftpm
+        key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
+        restore-keys: |
+          ${{ runner.os }}-spm-
+
+    - name: Build
+      run: swift build
+
+    - name: Run tests
+      run: swift test --enable-code-coverage
