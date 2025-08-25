@@ -15,9 +15,12 @@ struct NetworkClientTests {
         )
 
         let expectedURL = try #require(URL(string: "https://api.example.com/ping"))
-        mockSession.dataToReturn = Data()
-        mockSession.responseToReturn = NetworkClientMother.makeSuccessResponse(
-            for: expectedURL
+
+        mockSession.stubDataToReturn(
+            data: Data(),
+            response: NetworkClientMother.makeSuccessResponse(
+                for: expectedURL
+            )
         )
 
         let request = NetworkRequest<VoidRequest, VoidResponse>(
@@ -28,7 +31,7 @@ struct NetworkClientTests {
         let response = try await client.run(request)
 
         #expect(
-            response.value != nil,
+            type(of: response.value) == VoidResponse.self,
             "It should return VoidResponse"
         )
         #expect(
@@ -53,10 +56,12 @@ struct NetworkClientTests {
         """.utf8)
 
         let expectedURL = try #require(URL(string: "https://api.example.com/users"))
-        mockSession.dataToReturn = responseData
-        mockSession.responseToReturn = NetworkClientMother.makeSuccessResponse(
-            for: expectedURL,
-            statusCode: 201
+        mockSession.stubDataToReturn(
+            data: responseData,
+            response: NetworkClientMother.makeSuccessResponse(
+                for: expectedURL,
+                statusCode: 201
+            )
         )
 
         let requestBody = TestModelMother.makeTestRequestModel()
@@ -92,7 +97,7 @@ struct NetworkClientTests {
         )
 
         let networkError = URLError(.notConnectedToInternet)
-        mockSession.errorToThrow = networkError
+        mockSession.stubDataToThrow(error: networkError)
 
         let request = NetworkRequest<VoidRequest, VoidResponse>(
             path: "/test",
@@ -118,9 +123,11 @@ struct NetworkClientTests {
         )
 
         let expectedURL = try #require(URL(string: "https://api.example.com/protected"))
-        mockSession.dataToReturn = Data()
-        mockSession.responseToReturn = NetworkClientMother.makeSuccessResponse(
-            for: expectedURL
+        mockSession.stubDataToReturn(
+            data: Data(),
+            response: NetworkClientMother.makeSuccessResponse(
+                for: expectedURL
+            )
         )
 
         let request = NetworkRequest<VoidRequest, VoidResponse>(
@@ -152,9 +159,11 @@ struct NetworkClientTests {
         )
 
         let expectedURL = try #require(URL(string: "https://api.example.com/search?q=swift&limit=10"))
-        mockSession.dataToReturn = Data()
-        mockSession.responseToReturn = NetworkClientMother.makeSuccessResponse(
-            for: expectedURL
+        mockSession.stubDataToReturn(
+            data: Data(),
+            response: NetworkClientMother.makeSuccessResponse(
+                for: expectedURL
+            )
         )
 
         let request = NetworkRequest<VoidRequest, VoidResponse>(
@@ -200,9 +209,11 @@ struct NetworkClientTests {
         let client = NetworkClient(configuration: configuration)
 
         let expectedURL = try #require(URL(string: "https://api.example.com/data"))
-        mockSession.dataToReturn = Data()
-        mockSession.responseToReturn = NetworkClientMother.makeSuccessResponse(
-            for: expectedURL
+        mockSession.stubDataToReturn(
+            data: Data(),
+            response: NetworkClientMother.makeSuccessResponse(
+                for: expectedURL
+            )
         )
 
         let request = NetworkRequest<VoidRequest, VoidResponse>(

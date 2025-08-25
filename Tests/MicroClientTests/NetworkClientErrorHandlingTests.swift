@@ -16,14 +16,17 @@ struct NetworkClientErrorHandlingTests {
         let invalidJSON = Data("{ invalid json".utf8)
         let expectedURL = try #require(URL(string: "https://api.example.com/data"))
 
-        mockSession.dataToReturn = invalidJSON
-        mockSession.responseToReturn = try #require(
+        let response = try #require(
             HTTPURLResponse(
                 url: expectedURL,
                 statusCode: 200,
                 httpVersion: "HTTP/1.1",
                 headerFields: nil
             )
+        )
+        mockSession.stubDataToReturn(
+            data: invalidJSON,
+            response: response
         )
 
         let request = NetworkRequest<VoidRequest, TestResponseModel>(

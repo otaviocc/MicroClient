@@ -14,8 +14,10 @@ struct NetworkClientStatusPublisherTests {
             session: mockSession
         )
 
-        mockSession.dataToReturn = Data()
-        mockSession.responseToReturn = URLResponse()
+        mockSession.stubDataToReturn(
+            data: Data(),
+            response: URLResponse()
+        )
 
         var statusUpdates: [NetworkClientStatus] = []
 
@@ -56,7 +58,7 @@ struct NetworkClientStatusPublisherTests {
             session: mockSession
         )
 
-        mockSession.errorToThrow = URLError(.networkConnectionLost)
+        mockSession.stubDataToThrow(error: URLError(.networkConnectionLost))
 
         var statusUpdates: [NetworkClientStatus] = []
 
