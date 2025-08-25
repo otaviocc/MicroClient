@@ -40,33 +40,6 @@ enum NetworkClientMother {
         )!
     }
 
-    static func makeErrorResponse(
-        for url: URL,
-        statusCode: Int = 500,
-        httpVersion: String = "HTTP/1.1",
-        headerFields: [String: String]? = ["Content-Type": "application/json"]
-    ) -> HTTPURLResponse {
-        HTTPURLResponse(
-            url: url,
-            statusCode: statusCode,
-            httpVersion: httpVersion,
-            headerFields: headerFields
-        )!
-    }
-
-    static func makeNotFoundResponse(
-        for url: URL,
-        httpVersion: String = "HTTP/1.1",
-        headerFields: [String: String]? = ["Content-Type": "application/json"]
-    ) -> HTTPURLResponse {
-        HTTPURLResponse(
-            url: url,
-            statusCode: 404,
-            httpVersion: httpVersion,
-            headerFields: headerFields
-        )!
-    }
-
     static func makeNetworkConfiguration(
         session: URLSessionProtocol = URLSessionMock(),
         baseURL: URL = URL(string: "https://api.example.com")!,
