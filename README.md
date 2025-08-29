@@ -28,7 +28,7 @@ Add MicroClient to your project using Xcode's package manager or by adding it to
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/otaviocc/MicroClient", from: "1.0.0")
+    .package(url: "https://github.com/otaviocc/MicroClient", from: "0.0.17")
 ]
 ```
 
