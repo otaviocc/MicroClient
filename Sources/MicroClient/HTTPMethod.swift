@@ -1,5 +1,5 @@
 /// The HTTP method used for the network request.
-public enum HTTPMethod: String {
+public enum HTTPMethod: String, Sendable {
 
     /// GET method.
     case get = "GET"

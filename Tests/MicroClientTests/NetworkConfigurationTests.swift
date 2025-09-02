@@ -40,6 +40,10 @@ struct NetworkConfigurationTests {
             configuration.interceptor == nil,
             "It should have nil interceptor by default"
         )
+        #expect(
+            configuration.asyncInterceptor == nil,
+            "It should have nil async interceptor by default"
+        )
     }
 
     @Test("It should work with custom URLSession")
@@ -156,30 +160,36 @@ struct NetworkConfigurationTests {
         let encoder = JSONEncoder()
         let baseURL = try #require(URL(string: "https://api.example.com"))
 
-        let configuration = NetworkConfiguration(
+        _ = NetworkConfiguration(
             session: session,
             defaultDecoder: decoder,
             defaultEncoder: encoder,
             baseURL: baseURL
         )
 
-        let interceptor: (URLRequest) -> URLRequest = { request in
+        let interceptor: @Sendable (URLRequest) -> URLRequest = { request in
             var modifiedRequest = request
             modifiedRequest.setValue("Bearer token", forHTTPHeaderField: "Authorization")
             return modifiedRequest
         }
 
-        configuration.interceptor = interceptor
+        let configurationWithInterceptor = NetworkConfiguration(
+            session: session,
+            defaultDecoder: decoder,
+            defaultEncoder: encoder,
+            baseURL: baseURL,
+            interceptor: interceptor
+        )
 
         #expect(
-            configuration.interceptor != nil,
+            configurationWithInterceptor.interceptor != nil,
             "It should allow setting interceptor"
         )
 
         // Test that the interceptor works correctly
         let testURL = try #require(URL(string: "https://test.example.com"))
         let originalRequest = URLRequest(url: testURL)
-        let modifiedRequest = configuration.interceptor?(originalRequest)
+        let modifiedRequest = configurationWithInterceptor.interceptor?(originalRequest)
 
         #expect(
             modifiedRequest?.value(forHTTPHeaderField: "Authorization") == "Bearer token",
@@ -187,39 +197,43 @@ struct NetworkConfigurationTests {
         )
     }
 
-    @Test("It should allow clearing interceptor")
-    func allowClearingInterceptor() throws {
+    @Test("It should support nil interceptor")
+    func supportNilInterceptor() throws {
         let session = URLSession.shared
         let decoder = JSONDecoder()
         let encoder = JSONEncoder()
         let baseURL = try #require(URL(string: "https://api.example.com"))
 
-        let configuration = NetworkConfiguration(
+        // Create configuration without interceptor
+        let configurationWithoutInterceptor = NetworkConfiguration(
             session: session,
             defaultDecoder: decoder,
             defaultEncoder: encoder,
             baseURL: baseURL
         )
 
-        // Set an interceptor first
-        configuration.interceptor = { request in request }
-
         #expect(
-            configuration.interceptor != nil,
-            "It should have interceptor after setting"
+            configurationWithoutInterceptor.interceptor == nil,
+            "It should support nil interceptor by default"
         )
 
-        // Clear the interceptor
-        configuration.interceptor = nil
+        // Create configuration with interceptor
+        let configurationWithInterceptor = NetworkConfiguration(
+            session: session,
+            defaultDecoder: decoder,
+            defaultEncoder: encoder,
+            baseURL: baseURL,
+            interceptor: { @Sendable request in request }
+        )
 
         #expect(
-            configuration.interceptor == nil,
-            "It should allow clearing interceptor by setting to nil"
+            configurationWithInterceptor.interceptor != nil,
+            "It should support non-nil interceptor when provided"
         )
     }
 
-    @Test("It should be reference type")
-    func beReferenceType() throws {
+    @Test("It should be value type")
+    func beValueType() throws {
         let session = URLSession.shared
         let decoder = JSONDecoder()
         let encoder = JSONEncoder()
@@ -229,20 +243,83 @@ struct NetworkConfigurationTests {
             session: session,
             defaultDecoder: decoder,
             defaultEncoder: encoder,
-            baseURL: baseURL
+            baseURL: baseURL,
+            interceptor: { @Sendable request in request }
         )
 
         let configuration2 = configuration1
 
-        configuration1.interceptor = { request in request }
-
         #expect(
-            configuration2.interceptor != nil,
-            "It should share state as a reference type"
+            configuration1.interceptor != nil,
+            "It should have interceptor in first configuration"
         )
         #expect(
-            configuration1 === configuration2,
-            "It should be the same object reference"
+            configuration2.interceptor != nil,
+            "It should copy state as a value type"
+        )
+        #expect(
+            configuration1.baseURL == configuration2.baseURL,
+            "It should have equal properties after copying"
+        )
+    }
+
+    @Test("It should allow setting async interceptor")
+    func allowSettingAsyncInterceptor() throws {
+        let session = URLSession.shared
+        let decoder = JSONDecoder()
+        let encoder = JSONEncoder()
+        let baseURL = try #require(URL(string: "https://api.example.com"))
+
+        let asyncInterceptor: @Sendable (URLRequest) async -> URLRequest = { request in
+            request
+        }
+
+        let configuration = NetworkConfiguration(
+            session: session,
+            defaultDecoder: decoder,
+            defaultEncoder: encoder,
+            baseURL: baseURL,
+            asyncInterceptor: asyncInterceptor
+        )
+
+        #expect(
+            configuration.asyncInterceptor != nil,
+            "It should allow setting async interceptor"
+        )
+    }
+
+    @Test("It should support nil async interceptor")
+    func supportNilAsyncInterceptor() throws {
+        let session = URLSession.shared
+        let decoder = JSONDecoder()
+        let encoder = JSONEncoder()
+        let baseURL = try #require(URL(string: "https://api.example.com"))
+
+        // Create configuration without async interceptor
+        let configurationWithoutAsync = NetworkConfiguration(
+            session: session,
+            defaultDecoder: decoder,
+            defaultEncoder: encoder,
+            baseURL: baseURL
+        )
+
+        #expect(
+            configurationWithoutAsync.asyncInterceptor == nil,
+            "It should support nil async interceptor by default"
+        )
+
+        // Create configuration with async interceptor
+        let configurationWithAsync = NetworkConfiguration(
+            session: session,
+            defaultDecoder: decoder,
+            defaultEncoder: encoder,
+            baseURL: baseURL,
+            asyncInterceptor: { @Sendable request in request }
+        )
+
+        #expect(
+            configurationWithAsync.asyncInterceptor != nil,
+            "It should support non-nil async interceptor when provided"
         )
     }
 }

@@ -1,7 +1,7 @@
 import Foundation
 
 /// A single name-value pair from the form portion of a request.
-public struct URLFormItem {
+public struct URLFormItem: Sendable {
 
     // MARK: - Properties
 

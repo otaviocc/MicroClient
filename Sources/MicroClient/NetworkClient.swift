@@ -1,8 +1,7 @@
 import Foundation
-import Combine
 
 /// The network client interface.
-public protocol NetworkClientProtocol {
+public protocol NetworkClientProtocol: Sendable {
 
     /// Initializes the client with a given configuration.
     /// - Parameter configuration: The client configuration.
@@ -17,24 +16,14 @@ public protocol NetworkClientProtocol {
     func run<RequestModel, ResponseModel>(
         _ networkRequest: NetworkRequest<RequestModel, ResponseModel>
     ) async throws -> NetworkResponse<ResponseModel>
-
-    /// Publishes the network client status.
-    ///
-    /// There are two states, `.running` and `.idle` and they represent
-    /// if the network client is perform a network request or not.
-    ///
-    /// - Returns: The status publisher.
-    func statusPublisher(
-    ) -> AnyPublisher<NetworkClientStatus, Never>
 }
 
 /// The network client, conforming to the `NetworkClientProtocol` protocol.
-public final class NetworkClient: NetworkClientProtocol {
+public actor NetworkClient: NetworkClientProtocol {
 
     // MARK: - Properties
 
     private let configuration: NetworkConfiguration
-    private let statusSubject = PassthroughSubject<NetworkClientStatus, Never>()
 
     // MARK: - Life cycle
 
@@ -49,12 +38,6 @@ public final class NetworkClient: NetworkClientProtocol {
     public func run<RequestModel, ResponseModel>(
         _ networkRequest: NetworkRequest<RequestModel, ResponseModel>
     ) async throws -> NetworkResponse<ResponseModel> {
-        statusSubject.send(.running)
-
-        defer {
-            statusSubject.send(.idle)
-        }
-
         var request = try URLRequest.makeURLRequest(
             configuration: configuration,
             networkRequest: networkRequest
@@ -62,6 +45,10 @@ public final class NetworkClient: NetworkClientProtocol {
 
         if let interceptor = configuration.interceptor {
             request = interceptor(request)
+        }
+
+        if let asyncInterceptor = configuration.asyncInterceptor {
+            request = await asyncInterceptor(request)
         }
 
         let (data, response) = try await configuration.session.data(
@@ -76,10 +63,5 @@ public final class NetworkClient: NetworkClientProtocol {
             ),
             response: response
         )
-    }
-
-    public func statusPublisher(
-    ) -> AnyPublisher<NetworkClientStatus, Never> {
-        statusSubject.eraseToAnyPublisher()
     }
 }

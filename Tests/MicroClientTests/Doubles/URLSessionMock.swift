@@ -2,7 +2,7 @@ import Foundation
 
 @testable import MicroClient
 
-final class URLSessionMock: URLSessionProtocol {
+final class URLSessionMock: URLSessionProtocol, @unchecked Sendable {
 
     // MARK: - Properties
 

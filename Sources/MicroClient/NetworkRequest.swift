@@ -8,7 +8,7 @@ import Foundation
 public struct NetworkRequest<
     RequestModel,
     ResponseModel
-> where RequestModel: Encodable, ResponseModel: Decodable {
+>: Sendable where RequestModel: Encodable & Sendable, ResponseModel: Decodable & Sendable {
 
     // MARK: - Properties
 

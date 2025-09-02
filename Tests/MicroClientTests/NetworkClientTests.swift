@@ -1,6 +1,5 @@
 import Testing
 import Foundation
-import Combine
 
 @testable import MicroClient
 
@@ -193,7 +192,7 @@ struct NetworkClientTests {
         let mockSession = NetworkClientMother.makeMockSession()
 
         // Configure interceptor to add authentication
-        let interceptor: (URLRequest) -> URLRequest = { request in
+        let interceptor: @Sendable (URLRequest) -> URLRequest = { request in
             var modifiedRequest = request
             modifiedRequest.setValue(
                 "Bearer intercepted-token",
@@ -226,6 +225,117 @@ struct NetworkClientTests {
         #expect(
             mockSession.lastRequest?.value(forHTTPHeaderField: "Authorization") == "Bearer intercepted-token",
             "It should apply interceptor modifications"
+        )
+    }
+
+    @Test("It should use async interceptor when configured")
+    func useAsyncInterceptorWhenConfigured() async throws {
+        let mockSession = NetworkClientMother.makeMockSession()
+
+        // Configure async interceptor to add authentication asynchronously
+        let asyncInterceptor: @Sendable (URLRequest) async -> URLRequest = { request in
+            // Simulate async work (e.g., token refresh)
+            try? await Task.sleep(nanoseconds: 1_000_000) // 1ms
+            var modifiedRequest = request
+            modifiedRequest.setValue(
+                "Bearer async-token",
+                forHTTPHeaderField: "Authorization"
+            )
+            return modifiedRequest
+        }
+
+        let configuration = NetworkClientMother.makeNetworkConfiguration(
+            session: mockSession,
+            asyncInterceptor: asyncInterceptor
+        )
+        let client = NetworkClient(configuration: configuration)
+
+        let expectedURL = try #require(URL(string: "https://api.example.com/async-data"))
+        mockSession.stubDataToReturn(
+            data: Data(),
+            response: NetworkClientMother.makeSuccessResponse(
+                for: expectedURL
+            )
+        )
+
+        let request = NetworkRequest<VoidRequest, VoidResponse>(
+            path: "/async-data",
+            method: .get
+        )
+
+        _ = try await client.run(request)
+
+        #expect(
+            mockSession.lastRequest?.value(forHTTPHeaderField: "Authorization") == "Bearer async-token",
+            "It should apply async interceptor modifications"
+        )
+    }
+
+    @Test("It should use both interceptors when configured")
+    func useBothInterceptorsWhenConfigured() async throws {
+        let mockSession = NetworkClientMother.makeMockSession()
+
+        // Configure both interceptors
+        let interceptor: @Sendable (URLRequest) -> URLRequest = { request in
+            var modifiedRequest = request
+            modifiedRequest.setValue(
+                "Bearer sync-token",
+                forHTTPHeaderField: "Authorization"
+            )
+            modifiedRequest.setValue(
+                "sync-header",
+                forHTTPHeaderField: "X-Sync-Header"
+            )
+            return modifiedRequest
+        }
+
+        let asyncInterceptor: @Sendable (URLRequest) async -> URLRequest = { request in
+            var modifiedRequest = request
+            // Override the Authorization header from sync interceptor
+            modifiedRequest.setValue(
+                "Bearer async-override-token",
+                forHTTPHeaderField: "Authorization"
+            )
+            modifiedRequest.setValue(
+                "async-header",
+                forHTTPHeaderField: "X-Async-Header"
+            )
+            return modifiedRequest
+        }
+
+        let configuration = NetworkClientMother.makeNetworkConfiguration(
+            session: mockSession,
+            interceptor: interceptor,
+            asyncInterceptor: asyncInterceptor
+        )
+        let client = NetworkClient(configuration: configuration)
+
+        let expectedURL = try #require(URL(string: "https://api.example.com/both-interceptors"))
+        mockSession.stubDataToReturn(
+            data: Data(),
+            response: NetworkClientMother.makeSuccessResponse(
+                for: expectedURL
+            )
+        )
+
+        let request = NetworkRequest<VoidRequest, VoidResponse>(
+            path: "/both-interceptors",
+            method: .get
+        )
+
+        _ = try await client.run(request)
+
+        #expect(
+            mockSession.lastRequest?.value(forHTTPHeaderField: "Authorization") == "Bearer async-override-token",
+            "It should apply async interceptor after sync interceptor"
+        )
+        #expect(
+            mockSession.lastRequest?.value(forHTTPHeaderField: "X-Sync-Header") == "sync-header",
+            "It should preserve sync interceptor headers"
+        )
+        #expect(
+            mockSession.lastRequest?.value(forHTTPHeaderField: "X-Async-Header") == "async-header",
+            "It should apply async interceptor headers"
         )
     }
 }
