@@ -14,23 +14,15 @@ let package = Package(
             targets: ["MicroClient"]
         )
     ],
-    dependencies: [
-        .package(url: "https://github.com/SimplyDanny/SwiftLintPlugins", from: "0.59.1")
-    ],
+    dependencies: [],
     targets: [
         .target(
             name: "MicroClient",
-            dependencies: [],
-            plugins: [
-                .plugin(name: "SwiftLintBuildToolPlugin", package: "SwiftLintPlugins")
-            ]
+            dependencies: []
         ),
         .testTarget(
             name: "MicroClientTests",
-            dependencies: ["MicroClient"],
-            plugins: [
-                .plugin(name: "SwiftLintBuildToolPlugin", package: "SwiftLintPlugins")
-            ]
+            dependencies: ["MicroClient"]
         )
     ]
 )
