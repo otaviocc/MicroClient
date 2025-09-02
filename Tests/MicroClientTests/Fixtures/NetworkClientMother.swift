@@ -45,18 +45,17 @@ enum NetworkClientMother {
         baseURL: URL = URL(string: "https://api.example.com")!,
         decoder: JSONDecoder = JSONDecoder(),
         encoder: JSONEncoder = JSONEncoder(),
-        interceptor: ((URLRequest) -> URLRequest)? = nil
+        interceptor: (@Sendable (URLRequest) -> URLRequest)? = nil,
+        asyncInterceptor: (@Sendable (URLRequest) async -> URLRequest)? = nil
     ) -> NetworkConfiguration {
-        let configuration = NetworkConfiguration(
+        NetworkConfiguration(
             session: session,
             defaultDecoder: decoder,
             defaultEncoder: encoder,
-            baseURL: baseURL
+            baseURL: baseURL,
+            interceptor: interceptor,
+            asyncInterceptor: asyncInterceptor
         )
-
-        configuration.interceptor = interceptor
-
-        return configuration
     }
 }
 

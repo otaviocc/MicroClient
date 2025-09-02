@@ -1,7 +1,7 @@
 import Foundation
 
 /// Protocol for URLSession to enable dependency injection and testing
-public protocol URLSessionProtocol {
+public protocol URLSessionProtocol: Sendable {
 
     /// Performs a network request and returns data and response.
     ///

@@ -1,7 +1,7 @@
 import Foundation
 
 /// The network client configuration.
-public final class NetworkConfiguration {
+public struct NetworkConfiguration: Sendable {
 
     /// The session used to perform the network requests.
     public let session: URLSessionProtocol
@@ -21,23 +21,34 @@ public final class NetworkConfiguration {
     /// The interceptor called right before performing the
     /// network request. Can be used to modify the `URLRequest`
     /// if necessary.
-    public var interceptor: ((URLRequest) -> URLRequest)?
+    public let interceptor: (@Sendable (URLRequest) -> URLRequest)?
 
-    /// Initializes the network client confirmation.
+    /// The async interceptor called after the synchronous interceptor
+    /// and right before performing the network request. Can be used to
+    /// modify the `URLRequest` with async operations if necessary.
+    public let asyncInterceptor: (@Sendable (URLRequest) async -> URLRequest)?
+
+    /// Initializes the network client configuration.
     /// - Parameters:
     ///   - session: The session used to perform the network requests.
-    ///   - defaultDecoder: he default JSON decoder.
+    ///   - defaultDecoder: The default JSON decoder.
     ///   - defaultEncoder: The default JSON encoder.
     ///   - baseURL: The base URL component.
+    ///   - interceptor: The synchronous interceptor function (optional).
+    ///   - asyncInterceptor: The asynchronous interceptor function (optional).
     public init(
         session: URLSessionProtocol,
         defaultDecoder: JSONDecoder,
         defaultEncoder: JSONEncoder,
-        baseURL: URL
+        baseURL: URL,
+        interceptor: (@Sendable (URLRequest) -> URLRequest)? = nil,
+        asyncInterceptor: (@Sendable (URLRequest) async -> URLRequest)? = nil
     ) {
         self.session = session
         self.defaultDecoder = defaultDecoder
         self.defaultEncoder = defaultEncoder
         self.baseURL = baseURL
+        self.interceptor = interceptor
+        self.asyncInterceptor = asyncInterceptor
     }
 }

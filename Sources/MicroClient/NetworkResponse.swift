@@ -2,7 +2,7 @@ import Foundation
 
 /// The network response. It has the type
 /// used as response model.
-public struct NetworkResponse<ResponseModel> {
+public struct NetworkResponse<ResponseModel>: Sendable where ResponseModel: Sendable {
 
     // MARK: - Properties
 
