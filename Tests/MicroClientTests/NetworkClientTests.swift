@@ -3,6 +3,8 @@ import Foundation
 
 @testable import MicroClient
 
+// swiftlint:disable type_body_length
+
 @Suite("NetworkClient Tests")
 struct NetworkClientTests {
 
@@ -271,6 +273,7 @@ struct NetworkClientTests {
         )
     }
 
+    // swiftlint:disable function_body_length
     @Test("It should use both interceptors when configured")
     func useBothInterceptorsWhenConfigured() async throws {
         let mockSession = NetworkClientMother.makeMockSession()
@@ -338,4 +341,7 @@ struct NetworkClientTests {
             "It should apply async interceptor headers"
         )
     }
+    // swiftlint:enable function_body_length
 }
+
+// swiftlint:enable type_body_length

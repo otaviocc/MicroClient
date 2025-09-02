@@ -3,6 +3,8 @@ import Foundation
 
 @testable import MicroClient
 
+// swiftlint:disable type_body_length
+
 @Suite("NetworkConfiguration Tests")
 struct NetworkConfigurationTests {
 
@@ -222,9 +224,8 @@ struct NetworkConfigurationTests {
             session: session,
             defaultDecoder: decoder,
             defaultEncoder: encoder,
-            baseURL: baseURL,
-            interceptor: { @Sendable request in request }
-        )
+            baseURL: baseURL
+        ) { @Sendable request in request }
 
         #expect(
             configurationWithInterceptor.interceptor != nil,
@@ -243,9 +244,8 @@ struct NetworkConfigurationTests {
             session: session,
             defaultDecoder: decoder,
             defaultEncoder: encoder,
-            baseURL: baseURL,
-            interceptor: { @Sendable request in request }
-        )
+            baseURL: baseURL
+        ) { @Sendable request in request }
 
         let configuration2 = configuration1
 
@@ -314,8 +314,8 @@ struct NetworkConfigurationTests {
             defaultDecoder: decoder,
             defaultEncoder: encoder,
             baseURL: baseURL,
-            asyncInterceptor: { @Sendable request in request }
-        )
+            interceptor: nil
+        ) { @Sendable request in request }
 
         #expect(
             configurationWithAsync.asyncInterceptor != nil,
@@ -323,3 +323,5 @@ struct NetworkConfigurationTests {
         )
     }
 }
+
+// swiftlint:enable type_body_length
