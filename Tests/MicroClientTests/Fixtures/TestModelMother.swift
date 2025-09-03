@@ -9,12 +9,12 @@ struct TestRequestModel: Encodable, Equatable {
     let name: String
 }
 
-struct TestResponseModel: Decodable, Equatable {
+struct TestResponseModel: Codable, Equatable {
     let success: Bool
     let message: String
     let data: TestData?
 
-    struct TestData: Decodable, Equatable {
+    struct TestData: Codable, Equatable {
         let value: String
     }
 }
