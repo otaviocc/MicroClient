@@ -169,7 +169,7 @@ struct NetworkConfigurationTests {
             baseURL: baseURL
         )
 
-        let interceptor: @Sendable (URLRequest) -> URLRequest = { request in
+        let interceptor: NetworkRequestsInterceptor = { request in
             var modifiedRequest = request
             modifiedRequest.setValue("Bearer token", forHTTPHeaderField: "Authorization")
             return modifiedRequest
@@ -188,7 +188,6 @@ struct NetworkConfigurationTests {
             "It should allow setting interceptor"
         )
 
-        // Test that the interceptor works correctly
         let testURL = try #require(URL(string: "https://test.example.com"))
         let originalRequest = URLRequest(url: testURL)
         let modifiedRequest = configurationWithInterceptor.interceptor?(originalRequest)
@@ -206,7 +205,6 @@ struct NetworkConfigurationTests {
         let encoder = JSONEncoder()
         let baseURL = try #require(URL(string: "https://api.example.com"))
 
-        // Create configuration without interceptor
         let configurationWithoutInterceptor = NetworkConfiguration(
             session: session,
             defaultDecoder: decoder,
@@ -219,7 +217,6 @@ struct NetworkConfigurationTests {
             "It should support nil interceptor by default"
         )
 
-        // Create configuration with interceptor
         let configurationWithInterceptor = NetworkConfiguration(
             session: session,
             defaultDecoder: decoder,
@@ -270,7 +267,7 @@ struct NetworkConfigurationTests {
         let encoder = JSONEncoder()
         let baseURL = try #require(URL(string: "https://api.example.com"))
 
-        let asyncInterceptor: @Sendable (URLRequest) async -> URLRequest = { request in
+        let asyncInterceptor: NetworkAsyncRequestInterceptor = { request in
             request
         }
 
@@ -295,7 +292,6 @@ struct NetworkConfigurationTests {
         let encoder = JSONEncoder()
         let baseURL = try #require(URL(string: "https://api.example.com"))
 
-        // Create configuration without async interceptor
         let configurationWithoutAsync = NetworkConfiguration(
             session: session,
             defaultDecoder: decoder,
@@ -308,7 +304,6 @@ struct NetworkConfigurationTests {
             "It should support nil async interceptor by default"
         )
 
-        // Create configuration with async interceptor
         let configurationWithAsync = NetworkConfiguration(
             session: session,
             defaultDecoder: decoder,

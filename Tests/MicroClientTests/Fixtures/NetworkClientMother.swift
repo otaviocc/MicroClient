@@ -45,8 +45,8 @@ enum NetworkClientMother {
         baseURL: URL = URL(string: "https://api.example.com")!,
         decoder: JSONDecoder = JSONDecoder(),
         encoder: JSONEncoder = JSONEncoder(),
-        interceptor: (@Sendable (URLRequest) -> URLRequest)? = nil,
-        asyncInterceptor: (@Sendable (URLRequest) async -> URLRequest)? = nil
+        interceptor: NetworkRequestsInterceptor? = nil,
+        asyncInterceptor: NetworkAsyncRequestInterceptor? = nil
     ) -> NetworkConfiguration {
         NetworkConfiguration(
             session: session,
