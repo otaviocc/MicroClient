@@ -9,10 +9,10 @@ A lightweight, zero-dependency Swift networking library designed for type-safe H
 ## Features
 
 - 🔒 **Type-safe**: Compile-time safety with generic request/response models
-- ⚡ **Modern**: Built with async/await and Combine integration
+- ⚡ **Modern**: Built with Swift Concurrency (async/await)
 - 🪶 **Lightweight**: Zero dependencies, minimal footprint
 - ⚙️ **Configurable**: Global defaults with per-request customization
-- 🔄 **Interceptors**: Middleware support for request modification
+- 🔄 **Interceptors**: Middleware support for synchronous and asynchronous request modification
 - 📱 **Cross-platform**: Supports macOS 12+ and iOS 15+
 
 ## Requirements
@@ -90,15 +90,13 @@ MicroClient is built around four core components that work together:
 
 ### NetworkClient
 
-The main client interface providing async/await API and Combine integration:
+The main client interface providing an async/await API:
 
 ```swift
 public protocol NetworkClientProtocol {
     func run<RequestModel, ResponseModel>(
         _ networkRequest: NetworkRequest<RequestModel, ResponseModel>
     ) async throws -> NetworkResponse<ResponseModel>
-    
-    func statusPublisher() -> AnyPublisher<NetworkClientStatus, Never>
 }
 ```
 
@@ -140,7 +138,8 @@ public final class NetworkConfiguration {
     public let defaultDecoder: JSONDecoder
     public let defaultEncoder: JSONEncoder
     public let baseURL: URL
-    public var interceptor: ((URLRequest) -> URLRequest)?
+    public let interceptor: ((URLRequest) -> URLRequest)?
+    public let asyncInterceptor: ((URLRequest) async -> URLRequest)?
 }
 ```
 
@@ -148,15 +147,40 @@ public final class NetworkConfiguration {
 
 ### Request Interceptors
 
-Modify requests before they're sent:
+Modify requests before they're sent using synchronous or asynchronous interceptors.
+
+#### Synchronous Interceptor
+
+A synchronous interceptor is useful for quick modifications, like adding a static header.
 
 ```swift
-configuration.interceptor = { request in
-    var mutableRequest = request
-    mutableRequest.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-    return mutableRequest
-}
+let configuration = NetworkConfiguration(
+    baseURL: URL(string: "https://api.example.com")!,
+    interceptor: { request in
+        var mutableRequest = request
+        mutableRequest.setValue("Bearer <STATIC_TOKEN>", forHTTPHeaderField: "Authorization")
+        return mutableRequest
+    }
+)
 ```
+
+#### Asynchronous Interceptor
+
+An asynchronous interceptor is ideal for operations that require waiting, such as refreshing an authentication token.
+
+```swift
+let configuration = NetworkConfiguration(
+    baseURL: URL(string: "https://api.example.com")!,
+    asyncInterceptor: { request in
+        var mutableRequest = request
+        let token = await tokenProvider.refreshToken()
+        mutableRequest.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        return mutableRequest
+    }
+)
+```
+
+The synchronous interceptor runs first, followed by the asynchronous one.
 
 ### Custom Encoders/Decoders
 
@@ -201,23 +225,6 @@ let request = NetworkRequest<VoidRequest, SearchResults>(
         URLQueryItem(name: "limit", value: "10")
     ]
 )
-```
-
-### Status Monitoring
-
-Monitor client activity with Combine:
-
-```swift
-client.statusPublisher()
-    .sink { status in
-        switch status {
-        case .idle:
-            print("Client is idle")
-        case .running:
-            print("Client is performing request")
-        }
-    }
-    .store(in: &cancellables)
 ```
 
 ## Error Handling
