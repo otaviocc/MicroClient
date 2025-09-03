@@ -38,10 +38,10 @@ public actor NetworkClient: NetworkClientProtocol {
     public func run<RequestModel, ResponseModel>(
         _ networkRequest: NetworkRequest<RequestModel, ResponseModel>
     ) async throws -> NetworkResponse<ResponseModel> {
-        let retryCount = retries(for: networkRequest)
+        let retryStrategy = networkRequest.retryStrategy ?? configuration.retryStrategy
         var lastError: Error?
 
-        for _ in 0...retryCount {
+        for _ in 0...retryStrategy.count {
             do {
                 return try await performRequest(networkRequest)
             } catch {
@@ -82,16 +82,5 @@ public actor NetworkClient: NetworkClientProtocol {
             ),
             response: response
         )
-    }
-
-    private func retries<RequestModel, ResponseModel>(
-        for networkRequest: NetworkRequest<RequestModel, ResponseModel>
-    ) -> Int {
-        let retryStrategy = networkRequest.retryStrategy ?? configuration.retryStrategy
-
-        return switch retryStrategy {
-        case .none: 0
-        case .retry(let count): count
-        }
     }
 }
