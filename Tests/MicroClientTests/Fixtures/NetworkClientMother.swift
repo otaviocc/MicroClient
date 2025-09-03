@@ -10,13 +10,15 @@ enum NetworkClientMother {
         session: URLSessionProtocol = URLSessionMock(),
         baseURL: URL = URL(string: "https://api.example.com")!,
         decoder: JSONDecoder = JSONDecoder(),
-        encoder: JSONEncoder = JSONEncoder()
+        encoder: JSONEncoder = JSONEncoder(),
+        retryStrategy: RetryStrategy = .none
     ) -> NetworkClient {
-        let configuration = NetworkConfiguration(
+        let configuration = makeNetworkConfiguration(
             session: session,
-            defaultDecoder: decoder,
-            defaultEncoder: encoder,
-            baseURL: baseURL
+            baseURL: baseURL,
+            decoder: decoder,
+            encoder: encoder,
+            retryStrategy: retryStrategy
         )
 
         return NetworkClient(configuration: configuration)
@@ -45,6 +47,7 @@ enum NetworkClientMother {
         baseURL: URL = URL(string: "https://api.example.com")!,
         decoder: JSONDecoder = JSONDecoder(),
         encoder: JSONEncoder = JSONEncoder(),
+        retryStrategy: RetryStrategy = .none,
         interceptor: NetworkRequestsInterceptor? = nil,
         asyncInterceptor: NetworkAsyncRequestInterceptor? = nil
     ) -> NetworkConfiguration {
@@ -53,6 +56,7 @@ enum NetworkClientMother {
             defaultDecoder: decoder,
             defaultEncoder: encoder,
             baseURL: baseURL,
+            retryStrategy: retryStrategy,
             interceptor: interceptor,
             asyncInterceptor: asyncInterceptor
         )

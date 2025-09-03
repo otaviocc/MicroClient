@@ -38,6 +38,25 @@ public actor NetworkClient: NetworkClientProtocol {
     public func run<RequestModel, ResponseModel>(
         _ networkRequest: NetworkRequest<RequestModel, ResponseModel>
     ) async throws -> NetworkResponse<ResponseModel> {
+        let retryStrategy = networkRequest.retryStrategy ?? configuration.retryStrategy
+        var lastError: Error?
+
+        for _ in 0...retryStrategy.count {
+            do {
+                return try await performRequest(networkRequest)
+            } catch {
+                lastError = error
+            }
+        }
+
+        throw lastError ?? NetworkClientError.unknown
+    }
+
+    // MARK: - Private
+
+    private func performRequest<RequestModel, ResponseModel>(
+        _ networkRequest: NetworkRequest<RequestModel, ResponseModel>
+    ) async throws -> NetworkResponse<ResponseModel> {
         var request = try URLRequest.makeURLRequest(
             configuration: configuration,
             networkRequest: networkRequest

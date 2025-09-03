@@ -48,6 +48,10 @@ public struct NetworkRequest<
     /// for the request.
     public let additionalHeaders: [String: String]?
 
+    /// The retry strategy for the request. If present, it overrides
+    /// `NetworkConfiguration.retryStrategy`.
+    public let retryStrategy: RetryStrategy?
+
     // MARK: - Life cycle
 
     /// Initializes the request model.
@@ -60,6 +64,7 @@ public struct NetworkRequest<
     ///   - baseURL: The base URL used for the request.
     ///   - decoder: The decoder used to decode the `ResponseModel`.
     ///   - encoder: The encoder used to encode the `RequestModel`.
+    ///   - retryStrategy: The retry strategy for the request.
     ///   - additionalHeaders: A dictionary containing additional header fields.
     public init(
         path: String? = nil,
@@ -70,6 +75,7 @@ public struct NetworkRequest<
         baseURL: URL? = nil,
         decoder: JSONDecoder? = nil,
         encoder: JSONEncoder? = nil,
+        retryStrategy: RetryStrategy? = nil,
         additionalHeaders: [String: String]? = nil
     ) {
         self.path = path
@@ -80,6 +86,7 @@ public struct NetworkRequest<
         self.baseURL = baseURL
         self.decoder = decoder
         self.encoder = encoder
+        self.retryStrategy = retryStrategy
         self.additionalHeaders = additionalHeaders
     }
 }
