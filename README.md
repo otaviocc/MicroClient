@@ -13,6 +13,8 @@ A lightweight, zero-dependency Swift networking library designed for type-safe H
 - 🪶 **Lightweight**: Zero dependencies, minimal footprint
 - ⚙️ **Configurable**: Global defaults with per-request customization
 - 🔄 **Interceptors**: Middleware support for synchronous and asynchronous request modification
+- 🔁 **Automatic Retries**: Built-in support for request retries
+- 🪵 **Advanced Logging**: Customizable logging for requests and responses
 - 📱 **Cross-platform**: Supports macOS 12+ and iOS 15+
 
 ## Requirements
@@ -113,6 +115,7 @@ where RequestModel: Encodable, ResponseModel: Decodable {
     public let formItems: [URLFormItem]?
     public let body: RequestModel?
     public let additionalHeaders: [String: String]?
+    public let retryStrategy: RetryStrategy?
     // ... configuration overrides
 }
 ```
@@ -133,17 +136,82 @@ public struct NetworkResponse<ResponseModel> {
 Centralized configuration with override capability:
 
 ```swift
-public final class NetworkConfiguration {
-    public let session: URLSession
+public struct NetworkConfiguration: Sendable {
+    public let session: URLSessionProtocol
     public let defaultDecoder: JSONDecoder
     public let defaultEncoder: JSONEncoder
     public let baseURL: URL
-    public let interceptor: ((URLRequest) -> URLRequest)?
-    public let asyncInterceptor: ((URLRequest) async -> URLRequest)?
+    public let retryStrategy: RetryStrategy
+    public let logger: Logger?
+    public let logLevel: LogLevel
+    public let interceptor: NetworkRequestsInterceptor?
+    public let asyncInterceptor: NetworkAsyncRequestInterceptor?
 }
 ```
 
 ## Advanced Usage
+
+### Automatic Retries
+
+Configure automatic retries for failed requests.
+
+#### Global Configuration
+
+Set a default retry strategy for all requests in `NetworkConfiguration`:
+
+```swift
+let configuration = NetworkConfiguration(
+    baseURL: URL(string: "https://api.example.com")!,
+    retryStrategy: .retry(count: 3)
+)
+```
+
+#### Per-Request Override
+
+Override the global retry strategy for a specific request:
+
+```swift
+let request = NetworkRequest<VoidRequest, User>(
+    path: "/users/123",
+    method: .get,
+    retryStrategy: .none // This request will not be retried
+)
+```
+
+### Advanced Logging
+
+Enable detailed logging for requests and responses.
+
+#### Default Logger
+
+Use the built-in `ConsoleLogger` to print logs to the console:
+
+```swift
+let configuration = NetworkConfiguration(
+    baseURL: URL(string: "https://api.example.com")!,
+    logger: ConsoleLogger(),
+    logLevel: .debug // Log debug, info, warning, and error messages
+)
+```
+
+#### Custom Logger
+
+Provide your own logger by conforming to the `Logger` protocol:
+
+```swift
+struct MyCustomLogger: Logger {
+    func log(level: LogLevel, message: String) {
+        // Integrate with your preferred logging framework
+        print("[\(level)] - \(message)")
+    }
+}
+
+let configuration = NetworkConfiguration(
+    baseURL: URL(string: "https://api.example.com")!,
+    logger: MyCustomLogger(),
+    logLevel: .info
+)
+```
 
 ### Request Interceptors
 
@@ -237,14 +305,10 @@ do {
     // Handle success
 } catch let error as NetworkClientError {
     switch error {
-    case .invalidURL:
+    case .malformedURL:
         // Handle invalid URL
-    case .noData:
-        // Handle empty response
-    case .decodingError(let underlyingError):
-        // Handle JSON decoding errors
-    case .networkError(let underlyingError):
-        // Handle network errors
+    case .unknown:
+        // Handle unknown errors
     }
 } catch {
     // Handle other errors
