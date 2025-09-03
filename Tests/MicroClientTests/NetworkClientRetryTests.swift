@@ -133,7 +133,7 @@ struct NetworkClientRetryTests {
         )
         #expect(
             mockSession.requestCount == 3,
-            "It should have made 3 requests"
+            "It should make 3 requests"
         )
     }
 }
