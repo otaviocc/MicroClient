@@ -1,5 +1,11 @@
 import Foundation
 
+/// Type alias for synchronous request interceptors
+public typealias NetworkRequestsInterceptor = @Sendable (URLRequest) -> URLRequest
+
+/// Type alias for asynchronous request interceptors
+public typealias NetworkAsyncRequestInterceptor = @Sendable (URLRequest) async -> URLRequest
+
 /// The network client configuration.
 public struct NetworkConfiguration: Sendable {
 
@@ -21,12 +27,12 @@ public struct NetworkConfiguration: Sendable {
     /// The interceptor called right before performing the
     /// network request. Can be used to modify the `URLRequest`
     /// if necessary.
-    public let interceptor: (@Sendable (URLRequest) -> URLRequest)?
+    public let interceptor: NetworkRequestsInterceptor?
 
     /// The async interceptor called after the synchronous interceptor
     /// and right before performing the network request. Can be used to
     /// modify the `URLRequest` with async operations if necessary.
-    public let asyncInterceptor: (@Sendable (URLRequest) async -> URLRequest)?
+    public let asyncInterceptor: NetworkAsyncRequestInterceptor?
 
     /// Initializes the network client configuration.
     /// - Parameters:
@@ -41,8 +47,8 @@ public struct NetworkConfiguration: Sendable {
         defaultDecoder: JSONDecoder,
         defaultEncoder: JSONEncoder,
         baseURL: URL,
-        interceptor: (@Sendable (URLRequest) -> URLRequest)? = nil,
-        asyncInterceptor: (@Sendable (URLRequest) async -> URLRequest)? = nil
+        interceptor: NetworkRequestsInterceptor? = nil,
+        asyncInterceptor: NetworkAsyncRequestInterceptor? = nil
     ) {
         self.session = session
         self.defaultDecoder = defaultDecoder
