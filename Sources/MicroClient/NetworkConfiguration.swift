@@ -24,6 +24,10 @@ public struct NetworkConfiguration: Sendable {
     /// E.g., `https://hostname.com/api/v3`
     public let baseURL: URL
 
+    /// The retry strategy for network requests. The default
+    /// value is `.none`.
+    public let retryStrategy: RetryStrategy
+
     /// The interceptor called right before performing the
     /// network request. Can be used to modify the `URLRequest`
     /// if necessary.
@@ -40,6 +44,7 @@ public struct NetworkConfiguration: Sendable {
     ///   - defaultDecoder: The default JSON decoder.
     ///   - defaultEncoder: The default JSON encoder.
     ///   - baseURL: The base URL component.
+    ///   - retryStrategy: The retry strategy for network requests.
     ///   - interceptor: The synchronous interceptor function (optional).
     ///   - asyncInterceptor: The asynchronous interceptor function (optional).
     public init(
@@ -47,6 +52,7 @@ public struct NetworkConfiguration: Sendable {
         defaultDecoder: JSONDecoder,
         defaultEncoder: JSONEncoder,
         baseURL: URL,
+        retryStrategy: RetryStrategy = .none,
         interceptor: NetworkRequestsInterceptor? = nil,
         asyncInterceptor: NetworkAsyncRequestInterceptor? = nil
     ) {
@@ -54,6 +60,7 @@ public struct NetworkConfiguration: Sendable {
         self.defaultDecoder = defaultDecoder
         self.defaultEncoder = defaultEncoder
         self.baseURL = baseURL
+        self.retryStrategy = retryStrategy
         self.interceptor = interceptor
         self.asyncInterceptor = asyncInterceptor
     }
