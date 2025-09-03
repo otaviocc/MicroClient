@@ -28,6 +28,13 @@ public struct NetworkConfiguration: Sendable {
     /// value is `.none`.
     public let retryStrategy: RetryStrategy
 
+    /// The logger used for logging network requests and responses.
+    /// If `nil`, no logging will be performed.
+    public let logger: Logger?
+
+    /// The log level for the logger. The default value is `.info`.
+    public let logLevel: LogLevel
+
     /// The interceptor called right before performing the
     /// network request. Can be used to modify the `URLRequest`
     /// if necessary.
@@ -45,6 +52,8 @@ public struct NetworkConfiguration: Sendable {
     ///   - defaultEncoder: The default JSON encoder.
     ///   - baseURL: The base URL component.
     ///   - retryStrategy: The retry strategy for network requests.
+    ///   - logger: The logger for network requests and responses.
+    ///   - logLevel: The log level for the logger.
     ///   - interceptor: The synchronous interceptor function (optional).
     ///   - asyncInterceptor: The asynchronous interceptor function (optional).
     public init(
@@ -53,6 +62,8 @@ public struct NetworkConfiguration: Sendable {
         defaultEncoder: JSONEncoder,
         baseURL: URL,
         retryStrategy: RetryStrategy = .none,
+        logger: Logger? = nil,
+        logLevel: LogLevel = .info,
         interceptor: NetworkRequestsInterceptor? = nil,
         asyncInterceptor: NetworkAsyncRequestInterceptor? = nil
     ) {
@@ -61,6 +72,8 @@ public struct NetworkConfiguration: Sendable {
         self.defaultEncoder = defaultEncoder
         self.baseURL = baseURL
         self.retryStrategy = retryStrategy
+        self.logger = logger
+        self.logLevel = logLevel
         self.interceptor = interceptor
         self.asyncInterceptor = asyncInterceptor
     }
