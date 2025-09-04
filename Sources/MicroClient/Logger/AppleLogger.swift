@@ -5,11 +5,19 @@ public struct AppleLogger: NetworkLogger, Sendable {
 
     // MARK: - Properties
 
-    private let logger = Logger()
+    private let logger: Logger
 
     // MARK: - Life cycle
 
-    public init() {}
+    public init(
+        subsystem: String,
+        category: String = "Network"
+    ) {
+        self.logger = Logger(
+            subsystem: subsystem,
+            category: category
+        )
+    }
 
     // MARK: - Public
 
@@ -19,13 +27,13 @@ public struct AppleLogger: NetworkLogger, Sendable {
     ) {
         switch level {
         case .debug:
-            logger.debug("\(message)")
+            logger.debug("\(message, privacy: .public)")
         case .info:
-            logger.info("\(message)")
+            logger.info("\(message, privacy: .public)")
         case .warning:
-            logger.warning("\(message)")
+            logger.warning("\(message, privacy: .public)")
         case .error:
-            logger.error("\(message)")
+            logger.error("\(message, privacy: .public)")
         }
     }
 }
