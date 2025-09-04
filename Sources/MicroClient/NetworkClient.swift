@@ -49,7 +49,7 @@ public actor NetworkClient: NetworkClientProtocol {
             }
         }
 
-        throw lastError ?? NetworkClientError.unknown
+        throw lastError ?? NetworkClientError.unknown(nil)
     }
 
     // MARK: - Private
@@ -62,47 +62,74 @@ public actor NetworkClient: NetworkClientProtocol {
             log(.warning, "Retrying request... Attempt \(attempt)")
         }
 
-        var request = try URLRequest.makeURLRequest(
-            configuration: configuration,
-            networkRequest: networkRequest
-        )
+        var urlRequest: URLRequest
+        do {
+            urlRequest = try URLRequest.makeURLRequest(
+                configuration: configuration,
+                networkRequest: networkRequest
+            )
+        } catch let error as EncodingError {
+            log(.error, "Request encoding error: \(error.localizedDescription)")
+            throw NetworkClientError.encodingError(error)
+        } catch {
+            log(.error, "Malformed URL error.")
+            throw NetworkClientError.malformedURL
+        }
 
         if let interceptor = configuration.interceptor {
-            request = interceptor(request)
+            urlRequest = interceptor(urlRequest)
         }
 
         if let asyncInterceptor = configuration.asyncInterceptor {
-            request = await asyncInterceptor(request)
+            urlRequest = await asyncInterceptor(urlRequest)
         }
 
-        log(.info, "Request: \(request.httpMethod ?? "") \(request.url?.absoluteString ?? "")")
-        log(.debug, "Headers: \(request.allHTTPHeaderFields ?? [:])")
+        log(.info, "Request: \(urlRequest.httpMethod ?? "") \(urlRequest.url?.absoluteString ?? "")")
+        log(.debug, "Headers: \(urlRequest.allHTTPHeaderFields ?? [:])")
+
+        let data: Data
+        let response: URLResponse
 
         do {
-            let (data, response) = try await configuration.session.data(
-                for: request,
+            (data, response) = try await configuration.session.data(
+                for: urlRequest,
                 delegate: nil
             )
+        } catch {
+            log(.error, "Transport error: \(error.localizedDescription)")
+            throw NetworkClientError.transportError(error)
+        }
 
-            if let httpResponse = response as? HTTPURLResponse {
-                log(.info, "Response: \(httpResponse.statusCode)")
-                log(.debug, "Response headers: \(httpResponse.allHeaderFields)")
+        if let httpResponse = response as? HTTPURLResponse {
+            log(.info, "Response: \(httpResponse.statusCode)")
+            log(.debug, "Response headers: \(httpResponse.allHeaderFields)")
+
+            guard (200...299).contains(httpResponse.statusCode) else {
+                log(.error, "Unacceptable status code: \(httpResponse.statusCode)")
+                throw NetworkClientError.unacceptableStatusCode(
+                    statusCode: httpResponse.statusCode,
+                    response: httpResponse,
+                    data: data
+                )
             }
+        }
 
+        do {
             let value = try networkRequest.decode(
                 data: data,
                 defaultDecoder: configuration.defaultDecoder
             )
-
             log(.debug, "Response data: \(String(data: data, encoding: .utf8) ?? "")")
-
             return NetworkResponse(
                 value: value,
                 response: response
             )
+        } catch let error as DecodingError {
+            log(.error, "Response decoding error: \(error.localizedDescription)")
+            throw NetworkClientError.decodingError(error)
         } catch {
-            log(.error, "Error: \(error.localizedDescription)")
-            throw error
+            log(.error, "Unknown error during decoding: \(error.localizedDescription)")
+            throw NetworkClientError.unknown(error)
         }
     }
 

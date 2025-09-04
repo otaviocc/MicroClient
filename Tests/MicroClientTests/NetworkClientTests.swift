@@ -107,12 +107,11 @@ struct NetworkClientTests {
 
         do {
             _ = try await client.run(request)
-            #expect(Bool(false), "It should throw network error")
+            #expect(Bool(false), "It should throw a network error")
+        } catch let NetworkClientError.transportError(underlyingError) {
+            #expect(underlyingError is URLError, "The underlying error should be a URLError")
         } catch {
-            #expect(
-                error is URLError,
-                "It should propagate URLError"
-            )
+            #expect(Bool(false), "It should have thrown a NetworkClientError.transportError, but threw \(error) instead")
         }
     }
 

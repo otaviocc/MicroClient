@@ -79,8 +79,8 @@ struct NetworkClientLoggingTests {
         _ = try? await client.run(request)
 
         #expect(
-            mockLogger.loggedMessages.contains(where: { $0.level == .error && $0.message.contains("Error:") }),
-            "It should log error"
+            mockLogger.loggedMessages.contains(where: { $0.level == .error && $0.message.contains("Transport error:") }),
+            "It should log a transport error"
         )
     }
 

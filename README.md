@@ -297,7 +297,7 @@ let request = NetworkRequest<VoidRequest, SearchResults>(
 
 ## Error Handling
 
-MicroClient provides structured error handling:
+MicroClient provides structured error handling through the `NetworkClientError` enum, giving you detailed information on what went wrong.
 
 ```swift
 do {
@@ -306,12 +306,33 @@ do {
 } catch let error as NetworkClientError {
     switch error {
     case .malformedURL:
-        // Handle invalid URL
-    case .unknown:
-        // Handle unknown errors
+        print("Error: The URL for the request was invalid.")
+
+    case .transportError(let underlyingError):
+        print("Error: A network transport error occurred: \(underlyingError.localizedDescription)")
+
+    case .unacceptableStatusCode(let statusCode, _, let data):
+        print("Error: Server returned an unacceptable status code: \(statusCode).")
+        if let data = data, let errorBody = String(data: data, encoding: .utf8) {
+            print("Server response: \(errorBody)")
+        }
+
+    case .decodingError(let underlyingError):
+        print("Error: Failed to decode the response: \(underlyingError.localizedDescription)")
+
+    case .encodingError(let underlyingError):
+        print("Error: Failed to encode the request body: \(underlyingError.localizedDescription)")
+
+    case .unknown(let underlyingError):
+        if let underlyingError = underlyingError {
+            print("An unknown error occurred: \(underlyingError.localizedDescription)")
+        } else {
+            print("An unknown error occurred.")
+        }
     }
 } catch {
-    // Handle other errors
+    // Handle any other errors
+    print("An unexpected error occurred: \(error.localizedDescription)")
 }
 ```
 
