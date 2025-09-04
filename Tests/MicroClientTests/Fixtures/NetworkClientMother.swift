@@ -12,8 +12,8 @@ enum NetworkClientMother {
         decoder: JSONDecoder = JSONDecoder(),
         encoder: JSONEncoder = JSONEncoder(),
         retryStrategy: RetryStrategy = .none,
-        logger: Logger? = nil,
-        logLevel: LogLevel = .info
+        logger: NetworkLogger? = nil,
+        logLevel: NetworkLogLevel = .info
     ) -> NetworkClient {
         let configuration = makeNetworkConfiguration(
             session: session,
@@ -52,8 +52,8 @@ enum NetworkClientMother {
         decoder: JSONDecoder = JSONDecoder(),
         encoder: JSONEncoder = JSONEncoder(),
         retryStrategy: RetryStrategy = .none,
-        logger: Logger? = nil,
-        logLevel: LogLevel = .info,
+        logger: NetworkLogger? = nil,
+        logLevel: NetworkLogLevel = .info,
         interceptor: NetworkRequestsInterceptor? = nil,
         asyncInterceptor: NetworkAsyncRequestInterceptor? = nil
     ) -> NetworkConfiguration {

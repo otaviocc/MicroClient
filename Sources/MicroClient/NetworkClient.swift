@@ -106,7 +106,7 @@ public actor NetworkClient: NetworkClientProtocol {
         }
     }
 
-    private func log(_ level: LogLevel, _ message: String) {
+    private func log(_ level: NetworkLogLevel, _ message: String) {
         guard let logger = configuration.logger,
               level >= configuration.logLevel else { return }
 
