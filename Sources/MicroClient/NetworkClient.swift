@@ -54,6 +54,7 @@ public actor NetworkClient: NetworkClientProtocol {
 
     // MARK: - Private
 
+    // swiftlint:disable function_body_length
     private func performRequest<RequestModel, ResponseModel>(
         _ networkRequest: NetworkRequest<RequestModel, ResponseModel>,
         attempt: Int
@@ -135,8 +136,12 @@ public actor NetworkClient: NetworkClientProtocol {
             throw NetworkClientError.unknown(error)
         }
     }
+    // swiftlint:enable function_body_length
 
-    private func log(_ level: NetworkLogLevel, _ message: String) {
+    private func log(
+        _ level: NetworkLogLevel,
+        _ message: String
+    ) {
         guard let logger = configuration.logger,
               level >= configuration.logLevel else { return }
 

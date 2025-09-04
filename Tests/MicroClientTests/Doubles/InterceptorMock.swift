@@ -11,6 +11,6 @@ struct InterceptorMock: NetworkRequestInterceptor {
     // MARK: - Public
 
     func intercept(_ request: URLRequest) async throws -> URLRequest {
-        return request
+        request
     }
 }

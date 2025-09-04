@@ -20,7 +20,10 @@ public enum NetworkLogLevel: Int, Sendable {
 
 extension NetworkLogLevel: Comparable {
 
-    public static func < (lhs: NetworkLogLevel, rhs: NetworkLogLevel) -> Bool {
+    public static func < (
+        lhs: NetworkLogLevel,
+        rhs: NetworkLogLevel
+    ) -> Bool {
         lhs.rawValue < rhs.rawValue
     }
 }

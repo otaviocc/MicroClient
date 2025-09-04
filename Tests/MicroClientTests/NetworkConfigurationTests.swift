@@ -3,8 +3,6 @@ import Foundation
 
 @testable import MicroClient
 
-// swiftlint:disable type_body_length
-
 @Suite("NetworkConfiguration Tests")
 struct NetworkConfigurationTests {
 
@@ -206,5 +204,3 @@ struct NetworkConfigurationTests {
         )
     }
 }
-
-// swiftlint:enable type_body_length
