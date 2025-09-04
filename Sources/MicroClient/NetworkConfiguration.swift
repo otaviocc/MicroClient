@@ -30,10 +30,10 @@ public struct NetworkConfiguration: Sendable {
 
     /// The logger used for logging network requests and responses.
     /// If `nil`, no logging will be performed.
-    public let logger: Logger?
+    public let logger: NetworkLogger?
 
     /// The log level for the logger. The default value is `.info`.
-    public let logLevel: LogLevel
+    public let logLevel: NetworkLogLevel
 
     /// The interceptor called right before performing the
     /// network request. Can be used to modify the `URLRequest`
@@ -62,8 +62,8 @@ public struct NetworkConfiguration: Sendable {
         defaultEncoder: JSONEncoder,
         baseURL: URL,
         retryStrategy: RetryStrategy = .none,
-        logger: Logger? = nil,
-        logLevel: LogLevel = .info,
+        logger: NetworkLogger? = nil,
+        logLevel: NetworkLogLevel = .info,
         interceptor: NetworkRequestsInterceptor? = nil,
         asyncInterceptor: NetworkAsyncRequestInterceptor? = nil
     ) {

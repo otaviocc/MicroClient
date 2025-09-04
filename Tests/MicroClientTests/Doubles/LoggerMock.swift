@@ -2,16 +2,16 @@ import Foundation
 
 @testable import MicroClient
 
-final class LoggerMock: Logger, @unchecked Sendable {
+final class LoggerMock: NetworkLogger, @unchecked Sendable {
 
     // MARK: - Properties
 
-    private(set) var loggedMessages: [(level: LogLevel, message: String)] = []
+    private(set) var loggedMessages: [(level: NetworkLogLevel, message: String)] = []
 
     // MARK: - Public
 
     func log(
-        level: LogLevel,
+        level: NetworkLogLevel,
         message: String
     ) {
         loggedMessages.append((level, message))

@@ -1,7 +1,7 @@
 import Foundation
 
 /// The log level for the logger.
-public enum LogLevel: Int, Sendable {
+public enum NetworkLogLevel: Int, Sendable {
 
     /// Debug messages.
     case debug
@@ -18,16 +18,16 @@ public enum LogLevel: Int, Sendable {
 
 // MARK: - Comparable
 
-extension LogLevel: Comparable {
+extension NetworkLogLevel: Comparable {
 
-    public static func < (lhs: LogLevel, rhs: LogLevel) -> Bool {
+    public static func < (lhs: NetworkLogLevel, rhs: NetworkLogLevel) -> Bool {
         lhs.rawValue < rhs.rawValue
     }
 }
 
 // MARK: - CustomStringConvertible
 
-extension LogLevel: CustomStringConvertible {
+extension NetworkLogLevel: CustomStringConvertible {
 
     public var description: String {
         switch self {
