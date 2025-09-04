@@ -34,14 +34,46 @@ struct NetworkClientErrorHandlingTests {
             method: .get
         )
 
-        do {
+        let error = await #expect(throws: NetworkClientError.self) {
             _ = try await client.run(request)
-            #expect(Bool(false), "It should throw JSON decoding error")
-        } catch {
-            #expect(
-                error is DecodingError,
-                "It should throw DecodingError for invalid JSON"
-            )
         }
+        #expect(
+            String(describing: error).contains("NetworkClientError.decodingError"),
+            "It should return the correct error type"
+        )
+    }
+
+    @Test("It should handle unacceptable status codes")
+    func handleUnacceptableStatusCodes() async throws {
+        let mockSession = NetworkClientMother.makeMockSession()
+        let client = NetworkClientMother.makeNetworkClient(session: mockSession)
+        let errorData = Data("{\"error\": \"Not Found\"}".utf8)
+        let expectedURL = try #require(URL(string: "https://api.example.com/notfound"))
+
+        let response = try #require(
+            HTTPURLResponse(
+                url: expectedURL,
+                statusCode: 404,
+                httpVersion: "HTTP/1.1",
+                headerFields: ["Content-Type": "application/json"]
+            )
+        )
+        mockSession.stubDataToReturn(
+            data: errorData,
+            response: response
+        )
+
+        let request = NetworkRequest<VoidRequest, TestResponseModel>(
+            path: "/notfound",
+            method: .get
+        )
+
+        let error = await #expect(throws: NetworkClientError.self) {
+            _ = try await client.run(request)
+        }
+        #expect(
+            String(describing: error).contains("NetworkClientError.unacceptableStatusCode"),
+            "It should return the correct error type"
+        )
     }
 }
