@@ -7,5 +7,8 @@ public protocol NetworkLogger: Sendable {
     /// - Parameters:
     ///   - level: The log level.
     ///   - message: The message to log.
-    func log(level: NetworkLogLevel, message: String)
+    func log(
+        level: NetworkLogLevel,
+        message: String
+    )
 }

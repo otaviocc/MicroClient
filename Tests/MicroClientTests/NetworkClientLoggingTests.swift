@@ -1,4 +1,3 @@
-
 import Testing
 import Foundation
 
@@ -38,23 +37,23 @@ struct NetworkClientLoggingTests {
             "It should log 5 messages"
         )
         #expect(
-            messages.contains(where: { $0.level == .info && $0.message.contains("Request:") }),
+            messages.contains { $0.level == .info && $0.message.contains("Request:") },
             "It should log request info"
         )
         #expect(
-            messages.contains(where: { $0.level == .debug && $0.message.contains("Headers:") }),
+            messages.contains { $0.level == .debug && $0.message.contains("Headers:") },
             "It should log request headers"
         )
         #expect(
-            messages.contains(where: { $0.level == .info && $0.message.contains("Response:") }),
+            messages.contains { $0.level == .info && $0.message.contains("Response:") },
             "It should log response info"
         )
         #expect(
-            messages.contains(where: { $0.level == .debug && $0.message.contains("Response headers:") }),
+            messages.contains { $0.level == .debug && $0.message.contains("Response headers:") },
             "It should log response headers"
         )
         #expect(
-            messages.contains(where: { $0.level == .debug && $0.message.contains("Response data:") }),
+            messages.contains { $0.level == .debug && $0.message.contains("Response data:") },
             "It should log response data"
         )
     }
@@ -79,7 +78,7 @@ struct NetworkClientLoggingTests {
         _ = try? await client.run(request)
 
         #expect(
-            mockLogger.loggedMessages.contains(where: { $0.level == .error && $0.message.contains("Transport error:") }),
+            mockLogger.loggedMessages.contains { $0.level == .error && $0.message.contains("Transport error:") },
             "It should log a transport error"
         )
     }
@@ -105,7 +104,7 @@ struct NetworkClientLoggingTests {
         _ = try? await client.run(request)
 
         #expect(
-            mockLogger.loggedMessages.count(where: { $0.level == .warning && $0.message.contains("Retrying") }) == 2,
+            mockLogger.loggedMessages.count { $0.level == .warning && $0.message.contains("Retrying") } == 2,
             "It should log 2 retry attempts"
         )
     }
@@ -134,7 +133,7 @@ struct NetworkClientLoggingTests {
         _ = try await client.run(request)
 
         #expect(
-            !mockLogger.loggedMessages.contains(where: { $0.level == .debug }),
+            !mockLogger.loggedMessages.contains { $0.level == .debug },
             "It should not log debug messages"
         )
     }

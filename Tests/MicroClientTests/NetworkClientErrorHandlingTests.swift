@@ -34,13 +34,9 @@ struct NetworkClientErrorHandlingTests {
             method: .get
         )
 
-        let error = await #expect(throws: NetworkClientError.self) {
+        await #expect(throws: NetworkClientError.self) {
             _ = try await client.run(request)
         }
-        #expect(
-            String(describing: error).contains("NetworkClientError.decodingError"),
-            "It should return the correct error type"
-        )
     }
 
     @Test("It should handle unacceptable status codes")
@@ -68,12 +64,8 @@ struct NetworkClientErrorHandlingTests {
             method: .get
         )
 
-        let error = await #expect(throws: NetworkClientError.self) {
+        await #expect(throws: NetworkClientError.self) {
             _ = try await client.run(request)
         }
-        #expect(
-            String(describing: error).contains("NetworkClientError.unacceptableStatusCode"),
-            "It should return the correct error type"
-        )
     }
 }

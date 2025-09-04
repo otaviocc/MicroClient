@@ -3,8 +3,6 @@ import Foundation
 
 @testable import MicroClient
 
-// swiftlint:disable type_body_length
-
 @Suite("NetworkConfiguration Tests")
 struct NetworkConfigurationTests {
 
@@ -39,12 +37,8 @@ struct NetworkConfigurationTests {
             "It should store the provided base URL"
         )
         #expect(
-            configuration.interceptor == nil,
-            "It should have nil interceptor by default"
-        )
-        #expect(
-            configuration.asyncInterceptor == nil,
-            "It should have nil async interceptor by default"
+            configuration.interceptors.isEmpty,
+            "It should have an empty interceptors array by default"
         )
     }
 
@@ -155,168 +149,58 @@ struct NetworkConfigurationTests {
         )
     }
 
-    @Test("It should allow setting interceptor")
-    func allowSettingInterceptor() throws {
+    @Test("It should allow setting interceptors")
+    func allowSettingInterceptors() throws {
         let session = URLSession.shared
         let decoder = JSONDecoder()
         let encoder = JSONEncoder()
         let baseURL = try #require(URL(string: "https://api.example.com"))
-
-        _ = NetworkConfiguration(
-            session: session,
-            defaultDecoder: decoder,
-            defaultEncoder: encoder,
-            baseURL: baseURL
-        )
-
-        let interceptor: NetworkRequestsInterceptor = { request in
-            var modifiedRequest = request
-            modifiedRequest.setValue("Bearer token", forHTTPHeaderField: "Authorization")
-            return modifiedRequest
-        }
-
-        let configurationWithInterceptor = NetworkConfiguration(
-            session: session,
-            defaultDecoder: decoder,
-            defaultEncoder: encoder,
-            baseURL: baseURL,
-            interceptor: interceptor
-        )
-
-        #expect(
-            configurationWithInterceptor.interceptor != nil,
-            "It should allow setting interceptor"
-        )
-
-        let testURL = try #require(URL(string: "https://test.example.com"))
-        let originalRequest = URLRequest(url: testURL)
-        let modifiedRequest = configurationWithInterceptor.interceptor?(originalRequest)
-
-        #expect(
-            modifiedRequest?.value(forHTTPHeaderField: "Authorization") == "Bearer token",
-            "It should apply the interceptor to modify requests"
-        )
-    }
-
-    @Test("It should support nil interceptor")
-    func supportNilInterceptor() throws {
-        let session = URLSession.shared
-        let decoder = JSONDecoder()
-        let encoder = JSONEncoder()
-        let baseURL = try #require(URL(string: "https://api.example.com"))
-
-        let configurationWithoutInterceptor = NetworkConfiguration(
-            session: session,
-            defaultDecoder: decoder,
-            defaultEncoder: encoder,
-            baseURL: baseURL
-        )
-
-        #expect(
-            configurationWithoutInterceptor.interceptor == nil,
-            "It should support nil interceptor by default"
-        )
-
-        let configurationWithInterceptor = NetworkConfiguration(
-            session: session,
-            defaultDecoder: decoder,
-            defaultEncoder: encoder,
-            baseURL: baseURL
-        ) { @Sendable request in request }
-
-        #expect(
-            configurationWithInterceptor.interceptor != nil,
-            "It should support non-nil interceptor when provided"
-        )
-    }
-
-    @Test("It should be value type")
-    func beValueType() throws {
-        let session = URLSession.shared
-        let decoder = JSONDecoder()
-        let encoder = JSONEncoder()
-        let baseURL = try #require(URL(string: "https://api.example.com"))
-
-        let configuration1 = NetworkConfiguration(
-            session: session,
-            defaultDecoder: decoder,
-            defaultEncoder: encoder,
-            baseURL: baseURL
-        ) { @Sendable request in request }
-
-        let configuration2 = configuration1
-
-        #expect(
-            configuration1.interceptor != nil,
-            "It should have interceptor in first configuration"
-        )
-        #expect(
-            configuration2.interceptor != nil,
-            "It should copy state as a value type"
-        )
-        #expect(
-            configuration1.baseURL == configuration2.baseURL,
-            "It should have equal properties after copying"
-        )
-    }
-
-    @Test("It should allow setting async interceptor")
-    func allowSettingAsyncInterceptor() throws {
-        let session = URLSession.shared
-        let decoder = JSONDecoder()
-        let encoder = JSONEncoder()
-        let baseURL = try #require(URL(string: "https://api.example.com"))
-
-        let asyncInterceptor: NetworkAsyncRequestInterceptor = { request in
-            request
-        }
+        let interceptor1 = InterceptorMock()
+        let interceptor2 = InterceptorMock()
 
         let configuration = NetworkConfiguration(
             session: session,
             defaultDecoder: decoder,
             defaultEncoder: encoder,
             baseURL: baseURL,
-            asyncInterceptor: asyncInterceptor
+            interceptors: [interceptor1, interceptor2]
         )
 
         #expect(
-            configuration.asyncInterceptor != nil,
-            "It should allow setting async interceptor"
+            configuration.interceptors.count == 2,
+            "It should store the provided interceptors"
         )
     }
 
-    @Test("It should support nil async interceptor")
-    func supportNilAsyncInterceptor() throws {
+    @Test("It should be a value type")
+    func beValueType() throws {
         let session = URLSession.shared
         let decoder = JSONDecoder()
         let encoder = JSONEncoder()
         let baseURL = try #require(URL(string: "https://api.example.com"))
+        let interceptor = InterceptorMock()
 
-        let configurationWithoutAsync = NetworkConfiguration(
-            session: session,
-            defaultDecoder: decoder,
-            defaultEncoder: encoder,
-            baseURL: baseURL
-        )
-
-        #expect(
-            configurationWithoutAsync.asyncInterceptor == nil,
-            "It should support nil async interceptor by default"
-        )
-
-        let configurationWithAsync = NetworkConfiguration(
+        let configuration1 = NetworkConfiguration(
             session: session,
             defaultDecoder: decoder,
             defaultEncoder: encoder,
             baseURL: baseURL,
-            interceptor: nil
-        ) { @Sendable request in request }
+            interceptors: [interceptor]
+        )
+
+        let configuration2 = configuration1
 
         #expect(
-            configurationWithAsync.asyncInterceptor != nil,
-            "It should support non-nil async interceptor when provided"
+            !configuration1.interceptors.isEmpty,
+            "It should have interceptors in the first configuration"
+        )
+        #expect(
+            !configuration2.interceptors.isEmpty,
+            "It should copy the interceptors as a value type"
+        )
+        #expect(
+            configuration1.baseURL == configuration2.baseURL,
+            "It should have equal properties after copying"
         )
     }
 }
-
-// swiftlint:enable type_body_length

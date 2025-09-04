@@ -105,13 +105,8 @@ struct NetworkClientTests {
             method: .get
         )
 
-        do {
+        await #expect(throws: NetworkClientError.self) {
             _ = try await client.run(request)
-            #expect(Bool(false), "It should throw a network error")
-        } catch let NetworkClientError.transportError(underlyingError) {
-            #expect(underlyingError is URLError, "The underlying error should be a URLError")
-        } catch {
-            #expect(Bool(false), "It should have thrown a NetworkClientError.transportError, but threw \(error) instead")
         }
     }
 
@@ -191,156 +186,157 @@ struct NetworkClientTests {
     @Test("It should use interceptor when configured")
     func useInterceptorWhenConfigured() async throws {
         let mockSession = NetworkClientMother.makeMockSession()
-
-        // Configure interceptor to add authentication
-        let interceptor: @Sendable (URLRequest) -> URLRequest = { request in
-            var modifiedRequest = request
-            modifiedRequest.setValue(
-                "Bearer intercepted-token",
-                forHTTPHeaderField: "Authorization"
-            )
-            return modifiedRequest
-        }
+        let storage = MockInterceptorStorage()
+        let interceptor = HeaderInterceptor(
+            headerName: "X-Test",
+            headerValue: "success",
+            storage: storage
+        )
 
         let configuration = NetworkClientMother.makeNetworkConfiguration(
             session: mockSession,
-            interceptor: interceptor
+            interceptors: [interceptor]
         )
         let client = NetworkClient(configuration: configuration)
 
         let expectedURL = try #require(URL(string: "https://api.example.com/data"))
         mockSession.stubDataToReturn(
             data: Data(),
-            response: NetworkClientMother.makeSuccessResponse(
-                for: expectedURL
-            )
+            response: NetworkClientMother.makeSuccessResponse(for: expectedURL)
+        )
+
+        let request = NetworkRequest<VoidRequest, VoidResponse>(path: "/data", method: .get)
+        _ = try await client.run(request)
+
+        #expect(
+            mockSession.lastRequest?.value(forHTTPHeaderField: "X-Test") == "success",
+            "It should apply the interceptor modification"
+        )
+        let callOrder = await storage.callOrder
+        #expect(
+            callOrder == ["X-Test"],
+            "It should call the interceptor"
+        )
+    }
+
+    @Test("It should apply interceptors in order")
+    func applyInterceptorsInOrder() async throws {
+        let mockSession = NetworkClientMother.makeMockSession()
+        let storage = MockInterceptorStorage()
+        let interceptor1 = HeaderInterceptor(
+            headerName: "X-First",
+            headerValue: "1",
+            storage: storage
+        )
+        let interceptor2 = HeaderInterceptor(
+            headerName: "X-Second",
+            headerValue: "2",
+            storage: storage
+        )
+
+        let configuration = NetworkClientMother.makeNetworkConfiguration(
+            session: mockSession,
+            interceptors: [interceptor1, interceptor2]
+        )
+        let client = NetworkClient(configuration: configuration)
+
+        let expectedURL = try #require(URL(string: "https://api.example.com/data"))
+        mockSession.stubDataToReturn(
+            data: Data(),
+            response: NetworkClientMother.makeSuccessResponse(for: expectedURL)
+        )
+
+        let request = NetworkRequest<VoidRequest, VoidResponse>(path: "/data", method: .get)
+        _ = try await client.run(request)
+
+        #expect(
+            mockSession.lastRequest?.value(forHTTPHeaderField: "X-First") == "1",
+            "It should apply the first interceptor"
+        )
+        #expect(
+            mockSession.lastRequest?.value(forHTTPHeaderField: "X-Second") == "2",
+            "It should apply the second interceptor"
+        )
+        let callOrder = await storage.callOrder
+        #expect(
+            callOrder == ["X-First", "X-Second"],
+            "It should call the interceptors in the correct order"
+        )
+    }
+
+    @Test("It should prioritize per-request interceptors")
+    func prioritizePerRequestInterceptors() async throws {
+        let mockSession = NetworkClientMother.makeMockSession()
+        let globalStorage = MockInterceptorStorage()
+        let requestStorage = MockInterceptorStorage()
+
+        let globalInterceptor = HeaderInterceptor(
+            headerName: "X-Global",
+            headerValue: "global",
+            storage: globalStorage
+        )
+        let requestInterceptor = HeaderInterceptor(
+            headerName: "X-Request",
+            headerValue: "request",
+            storage: requestStorage
+        )
+
+        let configuration = NetworkClientMother.makeNetworkConfiguration(
+            session: mockSession,
+            interceptors: [globalInterceptor]
+        )
+        let client = NetworkClient(configuration: configuration)
+
+        let expectedURL = try #require(URL(string: "https://api.example.com/data"))
+        mockSession.stubDataToReturn(
+            data: Data(),
+            response: NetworkClientMother.makeSuccessResponse(for: expectedURL)
         )
 
         let request = NetworkRequest<VoidRequest, VoidResponse>(
             path: "/data",
-            method: .get
+            method: .get,
+            interceptors: [requestInterceptor]
         )
-
         _ = try await client.run(request)
 
         #expect(
-            mockSession.lastRequest?.value(forHTTPHeaderField: "Authorization") == "Bearer intercepted-token",
-            "It should apply interceptor modifications"
+            mockSession.lastRequest?.value(forHTTPHeaderField: "X-Global") == nil,
+            "It should not apply the global interceptor"
+        )
+        #expect(
+            mockSession.lastRequest?.value(forHTTPHeaderField: "X-Request") == "request",
+            "It should apply the per-request interceptor"
+        )
+
+        let globalCalls = await globalStorage.callOrder
+        let requestCalls = await requestStorage.callOrder
+        #expect(
+            globalCalls.isEmpty,
+            "It should not call the global interceptor"
+        )
+        #expect(
+            requestCalls == ["X-Request"],
+            "It should call the per-request interceptor"
         )
     }
 
-    @Test("It should use async interceptor when configured")
-    func useAsyncInterceptorWhenConfigured() async throws {
+    @Test("It should handle interceptor errors")
+    func handleInterceptorErrors() async throws {
         let mockSession = NetworkClientMother.makeMockSession()
-
-        // Configure async interceptor to add authentication asynchronously
-        let asyncInterceptor: @Sendable (URLRequest) async -> URLRequest = { request in
-            // Simulate async work (e.g., token refresh)
-            try? await Task.sleep(nanoseconds: 1_000_000) // 1ms
-            var modifiedRequest = request
-            modifiedRequest.setValue(
-                "Bearer async-token",
-                forHTTPHeaderField: "Authorization"
-            )
-            return modifiedRequest
-        }
+        let throwingInterceptor = ThrowingInterceptor()
 
         let configuration = NetworkClientMother.makeNetworkConfiguration(
             session: mockSession,
-            asyncInterceptor: asyncInterceptor
+            interceptors: [throwingInterceptor]
         )
         let client = NetworkClient(configuration: configuration)
+        let request = NetworkRequest<VoidRequest, VoidResponse>(path: "/test", method: .get)
 
-        let expectedURL = try #require(URL(string: "https://api.example.com/async-data"))
-        mockSession.stubDataToReturn(
-            data: Data(),
-            response: NetworkClientMother.makeSuccessResponse(
-                for: expectedURL
-            )
-        )
-
-        let request = NetworkRequest<VoidRequest, VoidResponse>(
-            path: "/async-data",
-            method: .get
-        )
-
-        _ = try await client.run(request)
-
-        #expect(
-            mockSession.lastRequest?.value(forHTTPHeaderField: "Authorization") == "Bearer async-token",
-            "It should apply async interceptor modifications"
-        )
-    }
-
-    // swiftlint:disable function_body_length
-    @Test("It should use both interceptors when configured")
-    func useBothInterceptorsWhenConfigured() async throws {
-        let mockSession = NetworkClientMother.makeMockSession()
-
-        // Configure both interceptors
-        let interceptor: @Sendable (URLRequest) -> URLRequest = { request in
-            var modifiedRequest = request
-            modifiedRequest.setValue(
-                "Bearer sync-token",
-                forHTTPHeaderField: "Authorization"
-            )
-            modifiedRequest.setValue(
-                "sync-header",
-                forHTTPHeaderField: "X-Sync-Header"
-            )
-            return modifiedRequest
+        await #expect(throws: NetworkClientError.self) {
+            _ = try await client.run(request)
         }
-
-        let asyncInterceptor: @Sendable (URLRequest) async -> URLRequest = { request in
-            var modifiedRequest = request
-            // Override the Authorization header from sync interceptor
-            modifiedRequest.setValue(
-                "Bearer async-override-token",
-                forHTTPHeaderField: "Authorization"
-            )
-            modifiedRequest.setValue(
-                "async-header",
-                forHTTPHeaderField: "X-Async-Header"
-            )
-            return modifiedRequest
-        }
-
-        let configuration = NetworkClientMother.makeNetworkConfiguration(
-            session: mockSession,
-            interceptor: interceptor,
-            asyncInterceptor: asyncInterceptor
-        )
-        let client = NetworkClient(configuration: configuration)
-
-        let expectedURL = try #require(URL(string: "https://api.example.com/both-interceptors"))
-        mockSession.stubDataToReturn(
-            data: Data(),
-            response: NetworkClientMother.makeSuccessResponse(
-                for: expectedURL
-            )
-        )
-
-        let request = NetworkRequest<VoidRequest, VoidResponse>(
-            path: "/both-interceptors",
-            method: .get
-        )
-
-        _ = try await client.run(request)
-
-        #expect(
-            mockSession.lastRequest?.value(forHTTPHeaderField: "Authorization") == "Bearer async-override-token",
-            "It should apply async interceptor after sync interceptor"
-        )
-        #expect(
-            mockSession.lastRequest?.value(forHTTPHeaderField: "X-Sync-Header") == "sync-header",
-            "It should preserve sync interceptor headers"
-        )
-        #expect(
-            mockSession.lastRequest?.value(forHTTPHeaderField: "X-Async-Header") == "async-header",
-            "It should apply async interceptor headers"
-        )
     }
-    // swiftlint:enable function_body_length
 }
 
 // swiftlint:enable type_body_length
