@@ -1,11 +1,5 @@
 import Foundation
 
-/// Type alias for synchronous request interceptors
-public typealias NetworkRequestsInterceptor = @Sendable (URLRequest) -> URLRequest
-
-/// Type alias for asynchronous request interceptors
-public typealias NetworkAsyncRequestInterceptor = @Sendable (URLRequest) async -> URLRequest
-
 /// The network client configuration.
 public struct NetworkConfiguration: Sendable {
 
@@ -35,15 +29,9 @@ public struct NetworkConfiguration: Sendable {
     /// The log level for the logger. The default value is `.info`.
     public let logLevel: NetworkLogLevel
 
-    /// The interceptor called right before performing the
-    /// network request. Can be used to modify the `URLRequest`
-    /// if necessary.
-    public let interceptor: NetworkRequestsInterceptor?
-
-    /// The async interceptor called after the synchronous interceptor
-    /// and right before performing the network request. Can be used to
-    /// modify the `URLRequest` with async operations if necessary.
-    public let asyncInterceptor: NetworkAsyncRequestInterceptor?
+    /// A chain of interceptors that can inspect and modify requests before they are sent.
+    /// Interceptors are applied in the order they appear in this array.
+    public let interceptors: [NetworkRequestInterceptor]
 
     /// Initializes the network client configuration.
     /// - Parameters:
@@ -54,8 +42,7 @@ public struct NetworkConfiguration: Sendable {
     ///   - retryStrategy: The retry strategy for network requests.
     ///   - logger: The logger for network requests and responses.
     ///   - logLevel: The log level for the logger.
-    ///   - interceptor: The synchronous interceptor function (optional).
-    ///   - asyncInterceptor: The asynchronous interceptor function (optional).
+    ///   - interceptors: A chain of interceptors to apply to requests. Defaults to an empty array.
     public init(
         session: URLSessionProtocol,
         defaultDecoder: JSONDecoder,
@@ -64,8 +51,7 @@ public struct NetworkConfiguration: Sendable {
         retryStrategy: RetryStrategy = .none,
         logger: NetworkLogger? = nil,
         logLevel: NetworkLogLevel = .info,
-        interceptor: NetworkRequestsInterceptor? = nil,
-        asyncInterceptor: NetworkAsyncRequestInterceptor? = nil
+        interceptors: [NetworkRequestInterceptor] = []
     ) {
         self.session = session
         self.defaultDecoder = defaultDecoder
@@ -74,7 +60,6 @@ public struct NetworkConfiguration: Sendable {
         self.retryStrategy = retryStrategy
         self.logger = logger
         self.logLevel = logLevel
-        self.interceptor = interceptor
-        self.asyncInterceptor = asyncInterceptor
+        self.interceptors = interceptors
     }
 }

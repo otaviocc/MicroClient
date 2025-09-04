@@ -76,12 +76,15 @@ public actor NetworkClient: NetworkClientProtocol {
             throw NetworkClientError.malformedURL
         }
 
-        if let interceptor = configuration.interceptor {
-            urlRequest = interceptor(urlRequest)
-        }
+        let interceptors = networkRequest.interceptors ?? configuration.interceptors
 
-        if let asyncInterceptor = configuration.asyncInterceptor {
-            urlRequest = await asyncInterceptor(urlRequest)
+        do {
+            for interceptor in interceptors {
+                urlRequest = try await interceptor.intercept(urlRequest)
+            }
+        } catch {
+            log(.error, "Interceptor error: \(error.localizedDescription)")
+            throw NetworkClientError.interceptorError(error)
         }
 
         log(.info, "Request: \(urlRequest.httpMethod ?? "") \(urlRequest.url?.absoluteString ?? "")")

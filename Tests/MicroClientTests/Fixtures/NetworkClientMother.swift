@@ -54,8 +54,7 @@ enum NetworkClientMother {
         retryStrategy: RetryStrategy = .none,
         logger: NetworkLogger? = nil,
         logLevel: NetworkLogLevel = .info,
-        interceptor: NetworkRequestsInterceptor? = nil,
-        asyncInterceptor: NetworkAsyncRequestInterceptor? = nil
+        interceptors: [NetworkRequestInterceptor] = []
     ) -> NetworkConfiguration {
         NetworkConfiguration(
             session: session,
@@ -65,8 +64,7 @@ enum NetworkClientMother {
             retryStrategy: retryStrategy,
             logger: logger,
             logLevel: logLevel,
-            interceptor: interceptor,
-            asyncInterceptor: asyncInterceptor
+            interceptors: interceptors
         )
     }
 }

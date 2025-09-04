@@ -52,6 +52,10 @@ public struct NetworkRequest<
     /// `NetworkConfiguration.retryStrategy`.
     public let retryStrategy: RetryStrategy?
 
+    /// A chain of interceptors to apply to this specific request. If provided,
+    /// this overrides the default interceptors from the `NetworkConfiguration`.
+    public let interceptors: [NetworkRequestInterceptor]?
+
     // MARK: - Life cycle
 
     /// Initializes the request model.
@@ -66,6 +70,7 @@ public struct NetworkRequest<
     ///   - encoder: The encoder used to encode the `RequestModel`.
     ///   - retryStrategy: The retry strategy for the request.
     ///   - additionalHeaders: A dictionary containing additional header fields.
+    ///   - interceptors: A chain of interceptors to apply to this specific request.
     public init(
         path: String? = nil,
         method: HTTPMethod,
@@ -76,7 +81,8 @@ public struct NetworkRequest<
         decoder: JSONDecoder? = nil,
         encoder: JSONEncoder? = nil,
         retryStrategy: RetryStrategy? = nil,
-        additionalHeaders: [String: String]? = nil
+        additionalHeaders: [String: String]? = nil,
+        interceptors: [NetworkRequestInterceptor]? = nil
     ) {
         self.path = path
         self.method = method
@@ -88,6 +94,7 @@ public struct NetworkRequest<
         self.encoder = encoder
         self.retryStrategy = retryStrategy
         self.additionalHeaders = additionalHeaders
+        self.interceptors = interceptors
     }
 }
 

@@ -23,6 +23,9 @@ public enum NetworkClientError: Error {
     /// The associated `Error` value contains the original decoding error.
     case encodingError(Error)
 
+    /// An error occurred during the execution of a request interceptor.
+    case interceptorError(Error)
+
     /// An unexpected or unknown error occurred.
     case unknown(Error?)
 }
