@@ -215,40 +215,74 @@ let configuration = NetworkConfiguration(
 
 ### Request Interceptors
 
-Modify requests before they're sent using synchronous or asynchronous interceptors.
+Modify requests before they are sent by creating a chain of objects that conform to the `NetworkRequestInterceptor` protocol. This is useful for cross-cutting concerns like adding authentication tokens, logging, or caching headers.
 
-#### Synchronous Interceptor
+#### 1. Create an Interceptor
 
-A synchronous interceptor is useful for quick modifications, like adding a static header.
+First, define a struct or class that conforms to `NetworkRequestInterceptor` and implement the `intercept` method.
 
 ```swift
-let configuration = NetworkConfiguration(
-    baseURL: URL(string: "https://api.example.com")!,
-    interceptor: { request in
+// An interceptor for adding a static API key to every request.
+struct APIKeyInterceptor: NetworkRequestInterceptor {
+    let apiKey: String
+
+    func intercept(_ request: URLRequest) async throws -> URLRequest {
         var mutableRequest = request
-        mutableRequest.setValue("Bearer <STATIC_TOKEN>", forHTTPHeaderField: "Authorization")
+        mutableRequest.setValue(apiKey, forHTTPHeaderField: "X-API-Key")
         return mutableRequest
     }
-)
-```
+}
 
-#### Asynchronous Interceptor
+// An interceptor that asynchronously refreshes an auth token.
+struct AuthTokenInterceptor: NetworkRequestInterceptor {
+    let tokenProvider: TokenProviding
 
-An asynchronous interceptor is ideal for operations that require waiting, such as refreshing an authentication token.
-
-```swift
-let configuration = NetworkConfiguration(
-    baseURL: URL(string: "https://api.example.com")!,
-    asyncInterceptor: { request in
+    func intercept(_ request: URLRequest) async throws -> URLRequest {
+        // Asynchronously get a fresh token.
+        let token = await tokenProvider.getFreshToken()
+        
         var mutableRequest = request
-        let token = await tokenProvider.refreshToken()
         mutableRequest.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         return mutableRequest
     }
-)
+}
 ```
 
-The synchronous interceptor runs first, followed by the asynchronous one.
+#### 2. Configure the Client
+
+Add instances of your interceptors to the `NetworkConfiguration`. They will be executed in the order they appear in the array.
+
+```swift
+let configuration = NetworkConfiguration(
+    baseURL: URL(string: "https://api.example.com")!,
+    interceptors: [
+        APIKeyInterceptor(apiKey: "my-secret-key"),
+        AuthTokenInterceptor(tokenProvider: myTokenProvider)
+    ]
+)
+
+let client = NetworkClient(configuration: configuration)
+```
+
+#### 3. Per-Request Override (Optional)
+
+You can also provide a specific set of interceptors for an individual request. This will override the interceptors set in the global configuration.
+
+```swift
+struct OneTimeHeaderInterceptor: NetworkRequestInterceptor {
+    func intercept(_ request: URLRequest) async throws -> URLRequest {
+        var mutableRequest = request
+        mutableRequest.setValue("true", forHTTPHeaderField: "X-Special-Request")
+        return mutableRequest
+    }
+}
+
+let request = NetworkRequest<VoidRequest, User>(
+    path: "/users/123",
+    method: .get,
+    interceptors: [OneTimeHeaderInterceptor()] // This interceptor runs instead of the global ones.
+)
+```
 
 ### Custom Encoders/Decoders
 
