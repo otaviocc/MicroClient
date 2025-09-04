@@ -17,8 +17,13 @@ extension URL {
             resolvingAgainstBaseURL: false
         )
 
-        components?.queryItems = networkRequest.queryItems
+        let queryItems = networkRequest
+            .queryItems
             .filter { $0.value != nil }
+
+        if !queryItems.isEmpty {
+            components?.queryItems = queryItems
+        }
 
         return try unwrap(
             value: components?.url,
