@@ -1,3 +1,12 @@
+included:
+  - Sources
+  - Tests
+
+excluded:
+  - .build
+  - .swiftpm
+  - Package.swift
+
 opt_in_rules:
   - array_init
   - block_based_kvo
@@ -51,7 +60,7 @@ opt_in_rules:
   - xct_specific_matcher
   - xctfail_message
   - yoda_condition
-  
+
 private_outlet:
   allow_private_set: true
 
