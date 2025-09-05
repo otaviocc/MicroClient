@@ -12,7 +12,7 @@ A lightweight, zero-dependency Swift networking library designed for type-safe H
 - ⚡ **Modern**: Built with Swift Concurrency (async/await)
 - 🪶 **Lightweight**: Zero dependencies, minimal footprint
 - ⚙️ **Configurable**: Global defaults with per-request customization
-- 🔄 **Interceptors**: Middleware support for synchronous and asynchronous request modification
+- 🔄 **Interceptors**: Middleware support with 9+ built-in interceptors for common use cases
 - 🔁 **Automatic Retries**: Built-in support for request retries
 - 🪵 **Advanced Logging**: Customizable logging for requests and responses
 - 📱 **Cross-platform**: Supports macOS 12+ and iOS 15+
@@ -43,6 +43,8 @@ import MicroClient
 
 let configuration = NetworkConfiguration(
     session: .shared,
+    defaultDecoder: JSONDecoder(),
+    defaultEncoder: JSONEncoder(),
     baseURL: URL(string: "https://api.example.com")!
 )
 
@@ -84,6 +86,18 @@ let createUserRequest = NetworkRequest<CreateUserRequest, User>(
 )
 
 let newUserResponse = try await client.run(createUserRequest)
+
+// Authentication (using built-in interceptors)
+let authenticatedConfig = NetworkConfiguration(
+    session: .shared,
+    defaultDecoder: JSONDecoder(),
+    defaultEncoder: JSONEncoder(),
+    baseURL: URL(string: "https://api.example.com")!,
+    interceptors: [
+        BearerAuthorizationInterceptor { await getAuthToken() },
+        APIKeyInterceptor(apiKey: "your-api-key")
+    ]
+)
 ```
 
 ## Architecture
@@ -107,16 +121,19 @@ public protocol NetworkClientProtocol {
 Type-safe request definitions with generic constraints:
 
 ```swift
-public struct NetworkRequest<RequestModel, ResponseModel> 
-where RequestModel: Encodable, ResponseModel: Decodable {
+public struct NetworkRequest<RequestModel, ResponseModel>
+where RequestModel: Encodable & Sendable, ResponseModel: Decodable & Sendable {
     public let path: String?
     public let method: HTTPMethod
-    public let queryItems: [URLQueryItem]?
+    public let queryItems: [URLQueryItem]
     public let formItems: [URLFormItem]?
+    public let baseURL: URL?
     public let body: RequestModel?
+    public let decoder: JSONDecoder?
+    public let encoder: JSONEncoder?
     public let additionalHeaders: [String: String]?
     public let retryStrategy: RetryStrategy?
-    // ... configuration overrides
+    public let interceptors: [NetworkRequestInterceptor]?
 }
 ```
 
@@ -142,10 +159,9 @@ public struct NetworkConfiguration: Sendable {
     public let defaultEncoder: JSONEncoder
     public let baseURL: URL
     public let retryStrategy: RetryStrategy
-    public let logger: Logger?
-    public let logLevel: LogLevel
-    public let interceptor: NetworkRequestsInterceptor?
-    public let asyncInterceptor: NetworkAsyncRequestInterceptor?
+    public let logger: NetworkLogger?
+    public let logLevel: NetworkLogLevel
+    public let interceptors: [NetworkRequestInterceptor]
 }
 ```
 
@@ -161,6 +177,9 @@ Set a default retry strategy for all requests in `NetworkConfiguration`:
 
 ```swift
 let configuration = NetworkConfiguration(
+    session: .shared,
+    defaultDecoder: JSONDecoder(),
+    defaultEncoder: JSONEncoder(),
     baseURL: URL(string: "https://api.example.com")!,
     retryStrategy: .retry(count: 3)
 )
@@ -184,29 +203,35 @@ Enable detailed logging for requests and responses.
 
 #### Default Logger
 
-Use the built-in `ConsoleLogger` to print logs to the console:
+Use the built-in `StdoutLogger` to print logs to the console:
 
 ```swift
 let configuration = NetworkConfiguration(
+    session: .shared,
+    defaultDecoder: JSONDecoder(),
+    defaultEncoder: JSONEncoder(),
     baseURL: URL(string: "https://api.example.com")!,
-    logger: ConsoleLogger(),
+    logger: StdoutLogger(),
     logLevel: .debug // Log debug, info, warning, and error messages
 )
 ```
 
 #### Custom Logger
 
-Provide your own logger by conforming to the `Logger` protocol:
+Provide your own logger by conforming to the `NetworkLogger` protocol:
 
 ```swift
-struct MyCustomLogger: Logger {
-    func log(level: LogLevel, message: String) {
+struct MyCustomLogger: NetworkLogger {
+    func log(level: NetworkLogLevel, message: String) {
         // Integrate with your preferred logging framework
         print("[\(level)] - \(message)")
     }
 }
 
 let configuration = NetworkConfiguration(
+    session: .shared,
+    defaultDecoder: JSONDecoder(),
+    defaultEncoder: JSONEncoder(),
     baseURL: URL(string: "https://api.example.com")!,
     logger: MyCustomLogger(),
     logLevel: .info
@@ -217,7 +242,47 @@ let configuration = NetworkConfiguration(
 
 Modify requests before they are sent by creating a chain of objects that conform to the `NetworkRequestInterceptor` protocol. This is useful for cross-cutting concerns like adding authentication tokens, logging, or caching headers.
 
-#### 1. Create an Interceptor
+#### Built-in Interceptors
+
+MicroClient provides several built-in interceptors for common use cases:
+
+```swift
+// API Key Authentication
+APIKeyInterceptor(apiKey: "your-api-key", headerName: "X-API-Key") // default header name
+
+// Bearer Token Authentication
+BearerAuthorizationInterceptor { await getToken() } // async token provider
+
+// Basic Authentication
+BasicAuthInterceptor(username: "user", password: "pass") // static credentials
+BasicAuthInterceptor { await getCredentials() } // dynamic credentials
+
+// Content Type header
+ContentTypeInterceptor(contentType: "application/json") // default
+ContentTypeInterceptor(contentType: "application/xml") // custom
+
+// Accept header
+AcceptHeaderInterceptor(acceptType: "application/json") // default
+AcceptHeaderInterceptor(acceptType: "application/xml") // custom
+
+// User Agent header
+UserAgentInterceptor(appName: "MyApp", version: "1.0") // generates "MyApp/1.0 (iOS)"
+UserAgentInterceptor(customUserAgent: "Custom/1.0") // fully custom
+
+// Request ID for tracking
+RequestIDInterceptor(headerName: "X-Request-ID") // default header name
+
+// Custom timeouts
+TimeoutInterceptor(timeout: 30.0) // 30 seconds
+
+// Cache control
+CacheControlInterceptor(policy: .noCache)
+CacheControlInterceptor(policy: .maxAge(seconds: 3600))
+CacheControlInterceptor(policy: .noStore)
+CacheControlInterceptor(policy: .custom("private, must-revalidate"))
+```
+
+#### 1. Create a Custom Interceptor
 
 First, define a struct or class that conforms to `NetworkRequestInterceptor` and implement the `intercept` method.
 
@@ -234,15 +299,17 @@ struct APIKeyInterceptor: NetworkRequestInterceptor {
 }
 
 // An interceptor that asynchronously refreshes an auth token.
-struct AuthTokenInterceptor: NetworkRequestInterceptor {
-    let tokenProvider: TokenProviding
+struct CustomAuthTokenInterceptor: NetworkRequestInterceptor {
+    let tokenProvider: @Sendable () async -> String?
 
     func intercept(_ request: URLRequest) async throws -> URLRequest {
         // Asynchronously get a fresh token.
-        let token = await tokenProvider.getFreshToken()
-        
+        let token = await tokenProvider()
+
         var mutableRequest = request
-        mutableRequest.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        if let token = token {
+            mutableRequest.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
         return mutableRequest
     }
 }
@@ -254,10 +321,13 @@ Add instances of your interceptors to the `NetworkConfiguration`. They will be e
 
 ```swift
 let configuration = NetworkConfiguration(
+    session: .shared,
+    defaultDecoder: JSONDecoder(),
+    defaultEncoder: JSONEncoder(),
     baseURL: URL(string: "https://api.example.com")!,
     interceptors: [
         APIKeyInterceptor(apiKey: "my-secret-key"),
-        AuthTokenInterceptor(tokenProvider: myTokenProvider)
+        BearerAuthorizationInterceptor(tokenProvider: myTokenProvider)
     ]
 )
 
@@ -356,6 +426,9 @@ do {
 
     case .encodingError(let underlyingError):
         print("Error: Failed to encode the request body: \(underlyingError.localizedDescription)")
+
+    case .interceptorError(let underlyingError):
+        print("Error: An interceptor failed: \(underlyingError.localizedDescription)")
 
     case .unknown(let underlyingError):
         if let underlyingError = underlyingError {

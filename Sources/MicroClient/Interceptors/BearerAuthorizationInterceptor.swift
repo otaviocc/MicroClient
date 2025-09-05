@@ -1,5 +1,13 @@
 import Foundation
 
+/// An interceptor that adds Bearer token authorization to HTTP requests.
+///
+/// This interceptor automatically adds an `Authorization` header with a Bearer token
+/// to outgoing requests. The token is provided through an asynchronous closure,
+/// allowing for dynamic token retrieval or refresh.
+///
+/// - Note: If the token provider returns `nil`, no Authorization header is added.
+/// - Warning: Existing Authorization headers will be replaced when a token is provided.
 public struct BearerAuthorizationInterceptor: NetworkRequestInterceptor {
 
     // MARK: - Properties

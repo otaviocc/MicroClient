@@ -13,7 +13,7 @@ struct BearerAuthorizationInterceptorTests {
         let tokenProvider: @Sendable () async -> String? = { expectedToken }
 
         let interceptor = BearerAuthorizationInterceptor(tokenProvider: tokenProvider)
-        var request = URLRequest(url: URL(string: "https://example.com")!)
+        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
 
         // When
         request = try await interceptor.intercept(request)
@@ -32,7 +32,7 @@ struct BearerAuthorizationInterceptorTests {
         let tokenProvider: @Sendable () async -> String? = { nil }
 
         let interceptor = BearerAuthorizationInterceptor(tokenProvider: tokenProvider)
-        var request = URLRequest(url: URL(string: "https://example.com")!)
+        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
 
         // When
         request = try await interceptor.intercept(request)
@@ -52,7 +52,7 @@ struct BearerAuthorizationInterceptorTests {
         let tokenProvider: @Sendable () async -> String? = { newToken }
 
         let interceptor = BearerAuthorizationInterceptor(tokenProvider: tokenProvider)
-        var request = URLRequest(url: URL(string: "https://example.com")!)
+        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
         request.setValue("Basic old-auth", forHTTPHeaderField: "Authorization")
 
         // When
@@ -73,7 +73,7 @@ struct BearerAuthorizationInterceptorTests {
         let tokenProvider: @Sendable () async -> String? = { nil }
 
         let interceptor = BearerAuthorizationInterceptor(tokenProvider: tokenProvider)
-        var request = URLRequest(url: URL(string: "https://example.com")!)
+        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
         request.setValue(existingAuthHeader, forHTTPHeaderField: "Authorization")
 
         // When
@@ -94,7 +94,7 @@ struct BearerAuthorizationInterceptorTests {
         let tokenProvider: @Sendable () async -> String? = { token }
 
         let interceptor = BearerAuthorizationInterceptor(tokenProvider: tokenProvider)
-        var request = URLRequest(url: URL(string: "https://example.com")!)
+        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("custom-value", forHTTPHeaderField: "X-Custom-Header")
 
@@ -126,7 +126,7 @@ struct BearerAuthorizationInterceptorTests {
         }
 
         let interceptor = BearerAuthorizationInterceptor(tokenProvider: tokenProvider)
-        var request = URLRequest(url: URL(string: "https://example.com")!)
+        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
 
         // When
         request = try await interceptor.intercept(request)
@@ -146,10 +146,10 @@ struct BearerAuthorizationInterceptorTests {
         let tokenProvider: @Sendable () async -> String? = { token }
 
         let interceptor = BearerAuthorizationInterceptor(tokenProvider: tokenProvider)
-        let originalURL = URL(string: "https://example.com/api/endpoint")!
+        let originalURL = try #require(URL(string: "https://example.com/api/endpoint"))
         var request = URLRequest(url: originalURL)
         request.httpMethod = "POST"
-        request.httpBody = "test body".data(using: .utf8)
+        request.httpBody = Data("test body".utf8)
         request.timeoutInterval = 30.0
 
         // When
@@ -165,7 +165,7 @@ struct BearerAuthorizationInterceptorTests {
             "It should preserve the HTTP method"
         )
         #expect(
-            request.httpBody == "test body".data(using: .utf8),
+            request.httpBody == Data("test body".utf8),
             "It should preserve the HTTP body"
         )
         #expect(
