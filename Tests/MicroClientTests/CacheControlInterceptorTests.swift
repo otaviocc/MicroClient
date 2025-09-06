@@ -1,5 +1,5 @@
-import Testing
 import Foundation
+import Testing
 
 @testable import MicroClient
 
@@ -10,7 +10,7 @@ struct CacheControlInterceptorTests {
     func addsCacheControlHeaderWithNoCachePolicy() async throws {
         // Given
         let interceptor = CacheControlInterceptor(policy: .noCache)
-        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
+        var request = try URLRequest(url: #require(URL(string: "https://example.com")))
 
         // When
         request = try await interceptor.intercept(request)
@@ -28,7 +28,7 @@ struct CacheControlInterceptorTests {
         // Given
         let maxAgeSeconds = 3600
         let interceptor = CacheControlInterceptor(policy: .maxAge(seconds: maxAgeSeconds))
-        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
+        var request = try URLRequest(url: #require(URL(string: "https://example.com")))
 
         // When
         request = try await interceptor.intercept(request)
@@ -45,7 +45,7 @@ struct CacheControlInterceptorTests {
     func addsCacheControlHeaderWithNoStorePolicy() async throws {
         // Given
         let interceptor = CacheControlInterceptor(policy: .noStore)
-        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
+        var request = try URLRequest(url: #require(URL(string: "https://example.com")))
 
         // When
         request = try await interceptor.intercept(request)
@@ -63,7 +63,7 @@ struct CacheControlInterceptorTests {
         // Given
         let customPolicy = "must-revalidate, max-age=300"
         let interceptor = CacheControlInterceptor(policy: .custom(customPolicy))
-        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
+        var request = try URLRequest(url: #require(URL(string: "https://example.com")))
 
         // When
         request = try await interceptor.intercept(request)
@@ -80,7 +80,7 @@ struct CacheControlInterceptorTests {
     func replacesExistingCacheControlHeader() async throws {
         // Given
         let interceptor = CacheControlInterceptor(policy: .noCache)
-        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
+        var request = try URLRequest(url: #require(URL(string: "https://example.com")))
         request.setValue("max-age=3600", forHTTPHeaderField: "Cache-Control")
 
         // When
@@ -98,7 +98,7 @@ struct CacheControlInterceptorTests {
     func handlesMaxAgeWithZeroSeconds() async throws {
         // Given
         let interceptor = CacheControlInterceptor(policy: .maxAge(seconds: 0))
-        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
+        var request = try URLRequest(url: #require(URL(string: "https://example.com")))
 
         // When
         request = try await interceptor.intercept(request)
@@ -116,7 +116,7 @@ struct CacheControlInterceptorTests {
         // Given
         let largeMaxAge = 86400 // 24 hours
         let interceptor = CacheControlInterceptor(policy: .maxAge(seconds: largeMaxAge))
-        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
+        var request = try URLRequest(url: #require(URL(string: "https://example.com")))
 
         // When
         request = try await interceptor.intercept(request)
@@ -133,7 +133,7 @@ struct CacheControlInterceptorTests {
     func handlesEmptyCustomPolicy() async throws {
         // Given
         let interceptor = CacheControlInterceptor(policy: .custom(""))
-        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
+        var request = try URLRequest(url: #require(URL(string: "https://example.com")))
 
         // When
         request = try await interceptor.intercept(request)
@@ -150,7 +150,7 @@ struct CacheControlInterceptorTests {
     func preservesOtherHeaders() async throws {
         // Given
         let interceptor = CacheControlInterceptor(policy: .maxAge(seconds: 1800))
-        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
+        var request = try URLRequest(url: #require(URL(string: "https://example.com")))
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("Bearer token", forHTTPHeaderField: "Authorization")
 

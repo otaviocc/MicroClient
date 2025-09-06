@@ -5,16 +5,19 @@ import Foundation
 // MARK: - NetworkClient Test Models
 
 struct TestRequestModel: Encodable, Equatable {
+
     let id: Int
     let name: String
 }
 
 struct TestResponseModel: Codable, Equatable {
+
     let success: Bool
     let message: String
     let data: TestData?
 
     struct TestData: Codable, Equatable {
+
         let value: String
     }
 }
@@ -22,11 +25,13 @@ struct TestResponseModel: Codable, Equatable {
 // MARK: - NetworkRequest Test Models
 
 struct NetworkRequestTestModel: Encodable, Equatable {
+
     let id: Int
     let name: String
 }
 
 struct NetworkRequestResponseModel: Decodable, Equatable {
+
     let success: Bool
     let message: String
 }
@@ -34,11 +39,13 @@ struct NetworkRequestResponseModel: Decodable, Equatable {
 // MARK: - Decoding Test Models
 
 struct DecodingTestModel: Decodable, Equatable {
+
     let id: Int
     let message: String
 }
 
 struct CustomDecodingModel: Decodable, Equatable {
+
     let id: Int
     let customMessage: String
 }
@@ -46,12 +53,14 @@ struct CustomDecodingModel: Decodable, Equatable {
 // MARK: - HTTP Body Test Models
 
 struct HTTPBodyTestModel: Encodable, Equatable {
+
     let value: String
 }
 
 // MARK: - Response Test Models
 
 struct ResponseTestModel: Decodable, Equatable {
+
     let id: Int
     let name: String
 }
@@ -59,6 +68,7 @@ struct ResponseTestModel: Decodable, Equatable {
 // MARK: - Complex Models
 
 struct ComplexModel: Decodable, Equatable {
+
     let id: UUID
     let metadata: [String: String]
     let timestamps: [Date]
@@ -69,9 +79,9 @@ struct ComplexModel: Decodable, Equatable {
         rhs: ComplexModel
     ) -> Bool {
         lhs.id == rhs.id &&
-               lhs.metadata == rhs.metadata &&
-               lhs.timestamps == rhs.timestamps &&
-               lhs.isActive == rhs.isActive
+            lhs.metadata == rhs.metadata &&
+            lhs.timestamps == rhs.timestamps &&
+            lhs.isActive == rhs.isActive
     }
 }
 

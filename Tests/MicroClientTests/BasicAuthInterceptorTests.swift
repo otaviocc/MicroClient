@@ -1,5 +1,5 @@
-import Testing
 import Foundation
+import Testing
 
 @testable import MicroClient
 
@@ -12,7 +12,7 @@ struct BasicAuthInterceptorTests {
         let username = "testuser"
         let password = "testpassword"
         let interceptor = BasicAuthInterceptor(username: username, password: password)
-        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
+        var request = try URLRequest(url: #require(URL(string: "https://example.com")))
 
         // When
         request = try await interceptor.intercept(request)
@@ -37,7 +37,7 @@ struct BasicAuthInterceptorTests {
             try? await Task.sleep(nanoseconds: 1_000_000) // 1ms
             return (username: username, password: password)
         }
-        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
+        var request = try URLRequest(url: #require(URL(string: "https://example.com")))
 
         // When
         request = try await interceptor.intercept(request)
@@ -58,7 +58,7 @@ struct BasicAuthInterceptorTests {
         let interceptor = BasicAuthInterceptor {
             nil // No credentials available
         }
-        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
+        var request = try URLRequest(url: #require(URL(string: "https://example.com")))
 
         // When
         request = try await interceptor.intercept(request)
@@ -77,7 +77,7 @@ struct BasicAuthInterceptorTests {
         let username = "newuser"
         let password = "newpassword"
         let interceptor = BasicAuthInterceptor(username: username, password: password)
-        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
+        var request = try URLRequest(url: #require(URL(string: "https://example.com")))
         request.setValue("Bearer token", forHTTPHeaderField: "Authorization")
 
         // When
@@ -100,7 +100,7 @@ struct BasicAuthInterceptorTests {
         let interceptor = BasicAuthInterceptor {
             nil // No credentials available
         }
-        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
+        var request = try URLRequest(url: #require(URL(string: "https://example.com")))
         request.setValue(existingToken, forHTTPHeaderField: "Authorization")
 
         // When
@@ -120,7 +120,7 @@ struct BasicAuthInterceptorTests {
         let username = ""
         let password = ""
         let interceptor = BasicAuthInterceptor(username: username, password: password)
-        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
+        var request = try URLRequest(url: #require(URL(string: "https://example.com")))
 
         // When
         request = try await interceptor.intercept(request)
@@ -141,7 +141,7 @@ struct BasicAuthInterceptorTests {
         let username = "user@domain.com"
         let password = "p@ssw0rd!@#$%^&*()"
         let interceptor = BasicAuthInterceptor(username: username, password: password)
-        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
+        var request = try URLRequest(url: #require(URL(string: "https://example.com")))
 
         // When
         request = try await interceptor.intercept(request)
@@ -162,7 +162,7 @@ struct BasicAuthInterceptorTests {
         let username = "user:name"
         let password = "password"
         let interceptor = BasicAuthInterceptor(username: username, password: password)
-        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
+        var request = try URLRequest(url: #require(URL(string: "https://example.com")))
 
         // When
         request = try await interceptor.intercept(request)
@@ -183,7 +183,7 @@ struct BasicAuthInterceptorTests {
         let username = "üser"
         let password = "pässwörd"
         let interceptor = BasicAuthInterceptor(username: username, password: password)
-        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
+        var request = try URLRequest(url: #require(URL(string: "https://example.com")))
 
         // When
         request = try await interceptor.intercept(request)
@@ -202,7 +202,7 @@ struct BasicAuthInterceptorTests {
     func preservesOtherHeaders() async throws {
         // Given
         let interceptor = BasicAuthInterceptor(username: "testuser", password: "testpass")
-        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
+        var request = try URLRequest(url: #require(URL(string: "https://example.com")))
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("custom-value", forHTTPHeaderField: "X-Custom-Header")
 

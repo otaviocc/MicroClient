@@ -1,5 +1,5 @@
-import Testing
 import Foundation
+import Testing
 
 @testable import MicroClient
 
@@ -10,7 +10,7 @@ struct RequestIDInterceptorTests {
     func addsRequestIDHeaderWithDefaultName() async throws {
         // Given
         let interceptor = RequestIDInterceptor()
-        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
+        var request = try URLRequest(url: #require(URL(string: "https://example.com")))
 
         // When
         request = try await interceptor.intercept(request)
@@ -22,7 +22,7 @@ struct RequestIDInterceptorTests {
             "It should add request ID to X-Request-ID header"
         )
         #expect(
-            UUID(uuidString: try #require(requestIDHeader)) != nil,
+            try UUID(uuidString: #require(requestIDHeader)) != nil,
             "It should be a valid UUID"
         )
     }
@@ -32,7 +32,7 @@ struct RequestIDInterceptorTests {
         // Given
         let customHeaderName = "Request-Trace-ID"
         let interceptor = RequestIDInterceptor(headerName: customHeaderName)
-        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
+        var request = try URLRequest(url: #require(URL(string: "https://example.com")))
 
         // When
         request = try await interceptor.intercept(request)
@@ -44,7 +44,7 @@ struct RequestIDInterceptorTests {
             "It should add request ID to custom header name"
         )
         #expect(
-            UUID(uuidString: try #require(requestIDHeader)) != nil,
+            try UUID(uuidString: #require(requestIDHeader)) != nil,
             "It should be a valid UUID"
         )
     }
@@ -53,8 +53,8 @@ struct RequestIDInterceptorTests {
     func generatesUniqueIDsForDifferentRequests() async throws {
         // Given
         let interceptor = RequestIDInterceptor()
-        var request1 = URLRequest(url: try #require(URL(string: "https://example.com/1")))
-        var request2 = URLRequest(url: try #require(URL(string: "https://example.com/2")))
+        var request1 = try URLRequest(url: #require(URL(string: "https://example.com/1")))
+        var request2 = try URLRequest(url: #require(URL(string: "https://example.com/2")))
 
         // When
         request1 = try await interceptor.intercept(request1)
@@ -78,7 +78,7 @@ struct RequestIDInterceptorTests {
     func replacesExistingRequestIDHeader() async throws {
         // Given
         let interceptor = RequestIDInterceptor()
-        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
+        var request = try URLRequest(url: #require(URL(string: "https://example.com")))
         request.setValue("old-request-id", forHTTPHeaderField: "X-Request-ID")
 
         // When
@@ -91,7 +91,7 @@ struct RequestIDInterceptorTests {
             "It should replace existing request ID header"
         )
         #expect(
-            UUID(uuidString: try #require(requestIDHeader)) != nil,
+            try UUID(uuidString: #require(requestIDHeader)) != nil,
             "It should be a valid UUID"
         )
     }
@@ -100,7 +100,7 @@ struct RequestIDInterceptorTests {
     func preservesOtherHeaders() async throws {
         // Given
         let interceptor = RequestIDInterceptor()
-        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
+        var request = try URLRequest(url: #require(URL(string: "https://example.com")))
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("Bearer token", forHTTPHeaderField: "Authorization")
 
@@ -127,7 +127,7 @@ struct RequestIDInterceptorTests {
     func handlesEmptyCustomHeaderName() async throws {
         // Given
         let interceptor = RequestIDInterceptor(headerName: "")
-        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
+        var request = try URLRequest(url: #require(URL(string: "https://example.com")))
 
         // When
         request = try await interceptor.intercept(request)
@@ -139,7 +139,7 @@ struct RequestIDInterceptorTests {
             "It should add request ID even with empty header name"
         )
         #expect(
-            UUID(uuidString: try #require(requestIDHeader)) != nil,
+            try UUID(uuidString: #require(requestIDHeader)) != nil,
             "It should be a valid UUID"
         )
     }
@@ -149,7 +149,7 @@ struct RequestIDInterceptorTests {
         // Given
         let specialHeaderName = "X-Request-ID_2024-Test"
         let interceptor = RequestIDInterceptor(headerName: specialHeaderName)
-        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
+        var request = try URLRequest(url: #require(URL(string: "https://example.com")))
 
         // When
         request = try await interceptor.intercept(request)
@@ -161,7 +161,7 @@ struct RequestIDInterceptorTests {
             "It should handle header names with special characters"
         )
         #expect(
-            UUID(uuidString: try #require(requestIDHeader)) != nil,
+            try UUID(uuidString: #require(requestIDHeader)) != nil,
             "It should be a valid UUID"
         )
     }
@@ -203,7 +203,7 @@ struct RequestIDInterceptorTests {
             "It should add the request ID header"
         )
         #expect(
-            UUID(uuidString: try #require(requestIDHeader)) != nil,
+            try UUID(uuidString: #require(requestIDHeader)) != nil,
             "It should be a valid UUID"
         )
     }

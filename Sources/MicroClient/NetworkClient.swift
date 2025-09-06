@@ -13,8 +13,8 @@ public protocol NetworkClientProtocol: Sendable {
     ///
     /// - Parameter networkRequest: The network request to perform.
     /// - Returns: The network response.
-    func run<RequestModel, ResponseModel>(
-        _ networkRequest: NetworkRequest<RequestModel, ResponseModel>
+    func run<ResponseModel>(
+        _ networkRequest: NetworkRequest<some Any, ResponseModel>
     ) async throws -> NetworkResponse<ResponseModel>
 }
 
@@ -35,8 +35,8 @@ public actor NetworkClient: NetworkClientProtocol {
 
     // MARK: - Public
 
-    public func run<RequestModel, ResponseModel>(
-        _ networkRequest: NetworkRequest<RequestModel, ResponseModel>
+    public func run<ResponseModel>(
+        _ networkRequest: NetworkRequest<some Any, ResponseModel>
     ) async throws -> NetworkResponse<ResponseModel> {
         let retryStrategy = networkRequest.retryStrategy ?? configuration.retryStrategy
         var lastError: Error?
@@ -55,8 +55,8 @@ public actor NetworkClient: NetworkClientProtocol {
     // MARK: - Private
 
     // swiftlint:disable function_body_length
-    private func performRequest<RequestModel, ResponseModel>(
-        _ networkRequest: NetworkRequest<RequestModel, ResponseModel>,
+    private func performRequest<ResponseModel>(
+        _ networkRequest: NetworkRequest<some Any, ResponseModel>,
         attempt: Int
     ) async throws -> NetworkResponse<ResponseModel> {
         if attempt > 0 {
@@ -136,14 +136,16 @@ public actor NetworkClient: NetworkClientProtocol {
             throw NetworkClientError.unknown(error)
         }
     }
+
     // swiftlint:enable function_body_length
 
     private func log(
         _ level: NetworkLogLevel,
         _ message: String
     ) {
-        guard let logger = configuration.logger,
-              level >= configuration.logLevel else { return }
+        guard
+            let logger = configuration.logger,
+            level >= configuration.logLevel else { return }
 
         logger.log(level: level, message: message)
     }

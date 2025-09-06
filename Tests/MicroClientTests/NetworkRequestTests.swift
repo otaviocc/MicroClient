@@ -1,5 +1,5 @@
-import Testing
 import Foundation
+import Testing
 
 @testable import MicroClient
 
@@ -68,6 +68,7 @@ struct NetworkRequestTests {
             "It should store the provided additional headers"
         )
     }
+
     // swiftlint:enable function_body_length
 
     @Test("It should initialize with minimal required parameters")

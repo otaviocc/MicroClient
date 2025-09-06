@@ -2,6 +2,7 @@ import Foundation
 
 /// An enum representing possible errors that can occur during a network request.
 public enum NetworkClientError: Error {
+
     /// The URL for the request was malformed or invalid.
     case malformedURL
 

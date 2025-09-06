@@ -1,5 +1,5 @@
-import Testing
 import Foundation
+import Testing
 
 @testable import MicroClient
 
@@ -142,8 +142,9 @@ struct NetworkClientLoggingTests {
 // MARK: - Private
 
 private extension Array {
+
     func count(where predicate: (Element) -> Bool) -> Int {
-        self.reduce(0) { count, element in
+        reduce(0) { count, element in
             count + (predicate(element) ? 1 : 0)
         }
     }

@@ -34,10 +34,10 @@ extension NetworkLogLevel: CustomStringConvertible {
 
     public var description: String {
         switch self {
-        case .debug: return "Debug"
-        case .info: return "Info"
-        case .warning: return "Warning"
-        case .error: return "Error"
+        case .debug: "Debug"
+        case .info: "Info"
+        case .warning: "Warning"
+        case .error: "Error"
         }
     }
 }

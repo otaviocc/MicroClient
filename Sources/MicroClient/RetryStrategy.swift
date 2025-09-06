@@ -12,7 +12,7 @@ public enum RetryStrategy: Sendable, Equatable {
     var count: Int {
         switch self {
         case .none: 0
-        case .retry(let count): count
+        case let .retry(count): count
         }
     }
 }

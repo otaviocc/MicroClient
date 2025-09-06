@@ -8,8 +8,8 @@ final class URLSessionMock: URLSessionProtocol, @unchecked Sendable {
 
     private(set) var lastRequest: URLRequest?
     private(set) var requestCount = 0
-    private var stubbedDataToReturn: Data = Data()
-    private var stubbedResponseToReturn: URLResponse = URLResponse()
+    private var stubbedDataToReturn = Data()
+    private var stubbedResponseToReturn = URLResponse()
     private var stubbedErrorToThrow: Error?
     var succeedAfter = 0
 
@@ -22,8 +22,7 @@ final class URLSessionMock: URLSessionProtocol, @unchecked Sendable {
         lastRequest = request
         requestCount += 1
 
-        if succeedAfter > 0,
-           requestCount > succeedAfter {
+        if succeedAfter > 0, requestCount > succeedAfter {
             // Do not throw error, return stubbed data
         } else if let error = stubbedErrorToThrow {
             throw error

@@ -13,6 +13,7 @@ public struct CacheControlInterceptor: NetworkRequestInterceptor {
     // MARK: - Properties
 
     public enum CachePolicy: Sendable {
+
         case noCache
         case maxAge(seconds: Int)
         case noStore
@@ -21,9 +22,9 @@ public struct CacheControlInterceptor: NetworkRequestInterceptor {
         var headerValue: String {
             switch self {
             case .noCache: "no-cache"
-            case .maxAge(let seconds): "max-age=\(seconds)"
+            case let .maxAge(seconds): "max-age=\(seconds)"
             case .noStore: "no-store"
-            case .custom(let value): value
+            case let .custom(value): value
             }
         }
     }

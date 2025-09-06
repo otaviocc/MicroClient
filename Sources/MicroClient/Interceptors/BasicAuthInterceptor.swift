@@ -39,7 +39,7 @@ public struct BasicAuthInterceptor: NetworkRequestInterceptor {
         username: String,
         password: String
     ) {
-        self.credentialsProvider = { (username, password) }
+        credentialsProvider = { (username, password) }
     }
 
     // MARK: - Public

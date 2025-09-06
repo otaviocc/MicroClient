@@ -1,5 +1,5 @@
-import Testing
 import Foundation
+import Testing
 
 @testable import MicroClient
 
@@ -10,7 +10,7 @@ struct AcceptHeaderInterceptorTests {
     func addsAcceptHeaderWithDefaultType() async throws {
         // Given
         let interceptor = AcceptHeaderInterceptor()
-        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
+        var request = try URLRequest(url: #require(URL(string: "https://example.com")))
 
         // When
         request = try await interceptor.intercept(request)
@@ -28,7 +28,7 @@ struct AcceptHeaderInterceptorTests {
         // Given
         let customAcceptType = "application/xml"
         let interceptor = AcceptHeaderInterceptor(acceptType: customAcceptType)
-        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
+        var request = try URLRequest(url: #require(URL(string: "https://example.com")))
 
         // When
         request = try await interceptor.intercept(request)
@@ -46,7 +46,7 @@ struct AcceptHeaderInterceptorTests {
         // Given
         let newAcceptType = "text/plain"
         let interceptor = AcceptHeaderInterceptor(acceptType: newAcceptType)
-        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
+        var request = try URLRequest(url: #require(URL(string: "https://example.com")))
         request.setValue("application/json", forHTTPHeaderField: "Accept")
 
         // When
@@ -64,7 +64,7 @@ struct AcceptHeaderInterceptorTests {
     func preservesOtherHeaders() async throws {
         // Given
         let interceptor = AcceptHeaderInterceptor(acceptType: "application/hal+json")
-        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
+        var request = try URLRequest(url: #require(URL(string: "https://example.com")))
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("Bearer token", forHTTPHeaderField: "Authorization")
 
@@ -91,7 +91,7 @@ struct AcceptHeaderInterceptorTests {
         // Given
         let emptyAcceptType = ""
         let interceptor = AcceptHeaderInterceptor(acceptType: emptyAcceptType)
-        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
+        var request = try URLRequest(url: #require(URL(string: "https://example.com")))
 
         // When
         request = try await interceptor.intercept(request)
@@ -109,7 +109,7 @@ struct AcceptHeaderInterceptorTests {
         // Given
         let multipleAcceptType = "application/json, application/xml; q=0.9, text/plain; q=0.8"
         let interceptor = AcceptHeaderInterceptor(acceptType: multipleAcceptType)
-        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
+        var request = try URLRequest(url: #require(URL(string: "https://example.com")))
 
         // When
         request = try await interceptor.intercept(request)
@@ -127,7 +127,7 @@ struct AcceptHeaderInterceptorTests {
         // Given
         let specialAcceptType = "application/vnd.api+json; charset=utf-8"
         let interceptor = AcceptHeaderInterceptor(acceptType: specialAcceptType)
-        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
+        var request = try URLRequest(url: #require(URL(string: "https://example.com")))
 
         // When
         request = try await interceptor.intercept(request)

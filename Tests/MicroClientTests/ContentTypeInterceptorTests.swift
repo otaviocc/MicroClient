@@ -1,5 +1,5 @@
-import Testing
 import Foundation
+import Testing
 
 @testable import MicroClient
 
@@ -10,7 +10,7 @@ struct ContentTypeInterceptorTests {
     func addsContentTypeHeaderWhenRequestHasBody() async throws {
         // Given
         let interceptor = ContentTypeInterceptor()
-        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
+        var request = try URLRequest(url: #require(URL(string: "https://example.com")))
         request.httpBody = Data("test body".utf8)
 
         // When
@@ -28,7 +28,7 @@ struct ContentTypeInterceptorTests {
     func doesNotAddContentTypeHeaderWhenRequestHasNoBody() async throws {
         // Given
         let interceptor = ContentTypeInterceptor()
-        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
+        var request = try URLRequest(url: #require(URL(string: "https://example.com")))
 
         // When
         request = try await interceptor.intercept(request)
@@ -46,7 +46,7 @@ struct ContentTypeInterceptorTests {
         // Given
         let customContentType = "application/xml"
         let interceptor = ContentTypeInterceptor(contentType: customContentType)
-        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
+        var request = try URLRequest(url: #require(URL(string: "https://example.com")))
         request.httpBody = Data("<xml>data</xml>".utf8)
 
         // When
@@ -65,7 +65,7 @@ struct ContentTypeInterceptorTests {
         // Given
         let newContentType = "text/plain"
         let interceptor = ContentTypeInterceptor(contentType: newContentType)
-        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
+        var request = try URLRequest(url: #require(URL(string: "https://example.com")))
         request.httpBody = Data("plain text".utf8)
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
@@ -85,7 +85,7 @@ struct ContentTypeInterceptorTests {
         // Given
         let existingContentType = "application/json"
         let interceptor = ContentTypeInterceptor(contentType: "text/plain")
-        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
+        var request = try URLRequest(url: #require(URL(string: "https://example.com")))
         request.setValue(existingContentType, forHTTPHeaderField: "Content-Type")
 
         // When
@@ -103,7 +103,7 @@ struct ContentTypeInterceptorTests {
     func handlesEmptyBody() async throws {
         // Given
         let interceptor = ContentTypeInterceptor()
-        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
+        var request = try URLRequest(url: #require(URL(string: "https://example.com")))
         request.httpBody = Data()
 
         // When
@@ -121,7 +121,7 @@ struct ContentTypeInterceptorTests {
     func preservesOtherHeaders() async throws {
         // Given
         let interceptor = ContentTypeInterceptor()
-        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
+        var request = try URLRequest(url: #require(URL(string: "https://example.com")))
         request.httpBody = Data("test body".utf8)
         request.setValue("Bearer token", forHTTPHeaderField: "Authorization")
         request.setValue("custom-value", forHTTPHeaderField: "X-Custom-Header")

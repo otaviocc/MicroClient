@@ -1,5 +1,5 @@
-import Testing
 import Foundation
+import Testing
 
 @testable import MicroClient
 
@@ -83,6 +83,7 @@ struct NetworkResponseTests {
     @Test("It should work with HTTPURLResponse")
     func workWithHTTPURLResponse() throws {
         struct APIResponse: Decodable, Equatable {
+
             let success: Bool
             let message: String
         }
@@ -129,6 +130,7 @@ struct NetworkResponseTests {
     @Test("It should work with Array response models")
     func workWithArrayResponseModels() throws {
         struct User: Decodable, Equatable {
+
             let id: Int
             let username: String
         }
@@ -249,7 +251,7 @@ struct NetworkResponseTests {
         let responseValue = "test data"
         let url = try #require(URL(string: "https://example.com/data.json"))
         let mimeType = "application/json"
-        let expectedContentLength: Int = 1024
+        let expectedContentLength = 1024
         let textEncodingName = "utf-8"
 
         let urlResponse = URLResponse(
