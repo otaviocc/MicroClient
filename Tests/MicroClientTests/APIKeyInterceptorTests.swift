@@ -1,5 +1,5 @@
-import Testing
 import Foundation
+import Testing
 
 @testable import MicroClient
 
@@ -11,7 +11,7 @@ struct APIKeyInterceptorTests {
         // Given
         let apiKey = "test-api-key-123"
         let interceptor = APIKeyInterceptor(apiKey: apiKey)
-        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
+        var request = try URLRequest(url: #require(URL(string: "https://example.com")))
 
         // When
         request = try await interceptor.intercept(request)
@@ -30,7 +30,7 @@ struct APIKeyInterceptorTests {
         let apiKey = "custom-api-key-456"
         let customHeaderName = "API-Token"
         let interceptor = APIKeyInterceptor(apiKey: apiKey, headerName: customHeaderName)
-        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
+        var request = try URLRequest(url: #require(URL(string: "https://example.com")))
 
         // When
         request = try await interceptor.intercept(request)
@@ -48,7 +48,7 @@ struct APIKeyInterceptorTests {
         // Given
         let newAPIKey = "new-api-key-789"
         let interceptor = APIKeyInterceptor(apiKey: newAPIKey)
-        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
+        var request = try URLRequest(url: #require(URL(string: "https://example.com")))
         request.setValue("old-api-key", forHTTPHeaderField: "X-API-Key")
 
         // When
@@ -67,7 +67,7 @@ struct APIKeyInterceptorTests {
         // Given
         let apiKey = "preserve-headers-key"
         let interceptor = APIKeyInterceptor(apiKey: apiKey)
-        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
+        var request = try URLRequest(url: #require(URL(string: "https://example.com")))
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("Bearer token", forHTTPHeaderField: "Authorization")
 
@@ -94,7 +94,7 @@ struct APIKeyInterceptorTests {
         // Given
         let emptyAPIKey = ""
         let interceptor = APIKeyInterceptor(apiKey: emptyAPIKey)
-        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
+        var request = try URLRequest(url: #require(URL(string: "https://example.com")))
 
         // When
         request = try await interceptor.intercept(request)
@@ -112,7 +112,7 @@ struct APIKeyInterceptorTests {
         // Given
         let specialAPIKey = "api-key-with-special-chars!@#$%^&*()"
         let interceptor = APIKeyInterceptor(apiKey: specialAPIKey)
-        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
+        var request = try URLRequest(url: #require(URL(string: "https://example.com")))
 
         // When
         request = try await interceptor.intercept(request)

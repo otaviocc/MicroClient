@@ -1,5 +1,5 @@
-import Testing
 import Foundation
+import Testing
 
 @testable import MicroClient
 
@@ -12,7 +12,7 @@ struct UserAgentInterceptorTests {
         let appName = "TestApp"
         let version = "1.0.0"
         let interceptor = UserAgentInterceptor(appName: appName, version: version)
-        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
+        var request = try URLRequest(url: #require(URL(string: "https://example.com")))
 
         // When
         request = try await interceptor.intercept(request)
@@ -30,7 +30,7 @@ struct UserAgentInterceptorTests {
         // Given
         let customUserAgent = "MyCustomClient/2.1 (macOS; Intel)"
         let interceptor = UserAgentInterceptor(customUserAgent: customUserAgent)
-        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
+        var request = try URLRequest(url: #require(URL(string: "https://example.com")))
 
         // When
         request = try await interceptor.intercept(request)
@@ -48,7 +48,7 @@ struct UserAgentInterceptorTests {
         // Given
         let newUserAgent = "NewApp/3.0 (iOS)"
         let interceptor = UserAgentInterceptor(customUserAgent: newUserAgent)
-        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
+        var request = try URLRequest(url: #require(URL(string: "https://example.com")))
         request.setValue("OldApp/1.0", forHTTPHeaderField: "User-Agent")
 
         // When
@@ -66,7 +66,7 @@ struct UserAgentInterceptorTests {
     func preservesOtherHeaders() async throws {
         // Given
         let interceptor = UserAgentInterceptor(appName: "TestApp", version: "1.0")
-        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
+        var request = try URLRequest(url: #require(URL(string: "https://example.com")))
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("Bearer token", forHTTPHeaderField: "Authorization")
 
@@ -92,7 +92,7 @@ struct UserAgentInterceptorTests {
     func handlesEmptyAppNameAndVersion() async throws {
         // Given
         let interceptor = UserAgentInterceptor(appName: "", version: "")
-        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
+        var request = try URLRequest(url: #require(URL(string: "https://example.com")))
 
         // When
         request = try await interceptor.intercept(request)
@@ -111,7 +111,7 @@ struct UserAgentInterceptorTests {
         let appName = "Test-App_2024"
         let version = "1.0-beta.1"
         let interceptor = UserAgentInterceptor(appName: appName, version: version)
-        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
+        var request = try URLRequest(url: #require(URL(string: "https://example.com")))
 
         // When
         request = try await interceptor.intercept(request)

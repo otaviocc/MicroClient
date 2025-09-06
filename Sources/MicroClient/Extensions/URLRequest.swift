@@ -2,9 +2,9 @@ import Foundation
 
 extension URLRequest {
 
-    static func makeURLRequest<RequestModel, ResponseModel>(
+    static func makeURLRequest(
         configuration: NetworkConfiguration,
-        networkRequest: NetworkRequest<RequestModel, ResponseModel>
+        networkRequest: NetworkRequest<some Any, some Any>
     ) throws -> URLRequest {
         let url = try URL.makeURL(
             configuration: configuration,

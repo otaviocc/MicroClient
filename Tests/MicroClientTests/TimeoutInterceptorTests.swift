@@ -1,5 +1,5 @@
-import Testing
 import Foundation
+import Testing
 
 @testable import MicroClient
 
@@ -11,7 +11,7 @@ struct TimeoutInterceptorTests {
         // Given
         let timeoutInterval: TimeInterval = 30.0
         let interceptor = TimeoutInterceptor(timeout: timeoutInterval)
-        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
+        var request = try URLRequest(url: #require(URL(string: "https://example.com")))
 
         // When
         request = try await interceptor.intercept(request)
@@ -28,7 +28,7 @@ struct TimeoutInterceptorTests {
         // Given
         let newTimeoutInterval: TimeInterval = 60.0
         let interceptor = TimeoutInterceptor(timeout: newTimeoutInterval)
-        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
+        var request = try URLRequest(url: #require(URL(string: "https://example.com")))
         request.timeoutInterval = 10.0
 
         // When
@@ -46,7 +46,7 @@ struct TimeoutInterceptorTests {
         // Given
         let zeroTimeout: TimeInterval = 0.0
         let interceptor = TimeoutInterceptor(timeout: zeroTimeout)
-        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
+        var request = try URLRequest(url: #require(URL(string: "https://example.com")))
 
         // When
         request = try await interceptor.intercept(request)
@@ -63,7 +63,7 @@ struct TimeoutInterceptorTests {
         // Given
         let largeTimeout: TimeInterval = 86400.0 // 24 hours
         let interceptor = TimeoutInterceptor(timeout: largeTimeout)
-        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
+        var request = try URLRequest(url: #require(URL(string: "https://example.com")))
 
         // When
         request = try await interceptor.intercept(request)
@@ -80,7 +80,7 @@ struct TimeoutInterceptorTests {
         // Given
         let fractionalTimeout: TimeInterval = 2.5
         let interceptor = TimeoutInterceptor(timeout: fractionalTimeout)
-        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
+        var request = try URLRequest(url: #require(URL(string: "https://example.com")))
 
         // When
         request = try await interceptor.intercept(request)
@@ -134,7 +134,7 @@ struct TimeoutInterceptorTests {
         // Given
         let timeoutInterval: TimeInterval = 20.0
         let interceptor = TimeoutInterceptor(timeout: timeoutInterval)
-        var request = URLRequest(url: try #require(URL(string: "https://example.com")))
+        var request = try URLRequest(url: #require(URL(string: "https://example.com")))
         request.setValue("Bearer token", forHTTPHeaderField: "Authorization")
         request.setValue("custom-value", forHTTPHeaderField: "X-Custom-Header")
 

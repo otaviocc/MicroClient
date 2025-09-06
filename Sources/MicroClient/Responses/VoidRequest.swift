@@ -1,2 +1,2 @@
 /// An empty request type.
-public struct VoidRequest: Encodable, Sendable { }
+public struct VoidRequest: Encodable, Sendable {}

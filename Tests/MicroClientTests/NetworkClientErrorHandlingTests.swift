@@ -1,6 +1,6 @@
-import Testing
-import Foundation
 import Combine
+import Foundation
+import Testing
 
 @testable import MicroClient
 

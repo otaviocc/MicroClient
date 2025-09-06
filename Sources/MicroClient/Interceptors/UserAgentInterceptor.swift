@@ -21,11 +21,11 @@ public struct UserAgentInterceptor: NetworkRequestInterceptor {
         appName: String,
         version: String
     ) {
-        self.userAgent = "\(appName)/\(version) (iOS)"
+        userAgent = "\(appName)/\(version) (iOS)"
     }
 
     public init(customUserAgent: String) {
-        self.userAgent = customUserAgent
+        userAgent = customUserAgent
     }
 
     // MARK: - Public

@@ -1,2 +1,2 @@
 /// An empty response type.
-public struct VoidResponse: Decodable, Sendable { }
+public struct VoidResponse: Decodable, Sendable {}
