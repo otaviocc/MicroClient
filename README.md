@@ -12,7 +12,7 @@ A lightweight, zero-dependency Swift networking library designed for type-safe H
 - ⚡ **Modern**: Built with Swift Concurrency (async/await)
 - 🪶 **Lightweight**: Zero dependencies, minimal footprint
 - ⚙️ **Configurable**: Global defaults with per-request customization
-- 🔄 **Interceptors**: Middleware support with 9+ built-in interceptors for common use cases
+- 🔄 **Interceptors**: Request and response middleware support with 13+ built-in interceptors for common use cases
 - 🔁 **Automatic Retries**: Built-in support for request retries
 - 🪵 **Advanced Logging**: Customizable logging for requests and responses
 - 📱 **Cross-platform**: Supports macOS 12+ and iOS 15+
@@ -134,6 +134,7 @@ where RequestModel: Encodable & Sendable, ResponseModel: Decodable & Sendable {
     public let additionalHeaders: [String: String]?
     public let retryStrategy: RetryStrategy?
     public let interceptors: [NetworkRequestInterceptor]?
+    public let responseInterceptors: [NetworkResponseInterceptor]?
 }
 ```
 
@@ -162,6 +163,7 @@ public struct NetworkConfiguration: Sendable {
     public let logger: NetworkLogger?
     public let logLevel: NetworkLogLevel
     public let interceptors: [NetworkRequestInterceptor]
+    public let responseInterceptors: [NetworkResponseInterceptor]
 }
 ```
 
@@ -354,6 +356,115 @@ let request = NetworkRequest<VoidRequest, User>(
 )
 ```
 
+### Response Interceptors
+
+Process responses after they are received and decoded by creating a chain of objects that conform to the `NetworkResponseInterceptor` protocol. This is useful for logging, metrics collection, validation, and handling rate limiting.
+
+#### Built-in Response Interceptors
+
+MicroClient provides several built-in response interceptors:
+
+```swift
+// Response Logging - Log response details
+ResponseLoggingInterceptor(
+    logger: StdoutLogger(),
+    logLevel: .debug
+)
+
+// Metrics Collection - Collect response metrics
+struct MyMetricsCollector: MetricsCollector {
+    func collect(_ metrics: ResponseMetrics) async {
+        // Track status codes, response sizes, timing, etc.
+        print("Status: \(metrics.statusCode ?? 0), Size: \(metrics.responseSize) bytes")
+    }
+}
+MetricsCollectionInterceptor(collector: MyMetricsCollector())
+
+// Retry-After Handling - Handle rate limiting (429, 503)
+RetryAfterInterceptor() // Throws RetryAfterError with timing information
+
+// Custom Status Code Validation - Flexible validation beyond 200-299
+StatusCodeValidationInterceptor(acceptableStatusCodes: [200, 201, 304])
+StatusCodeValidationInterceptor(acceptableRange: 200...299)
+StatusCodeValidationInterceptor(ranges: [200...299, 304...304])
+```
+
+#### Configure Response Interceptors
+
+Add response interceptors to your configuration:
+
+```swift
+let configuration = NetworkConfiguration(
+    session: .shared,
+    defaultDecoder: JSONDecoder(),
+    defaultEncoder: JSONEncoder(),
+    baseURL: URL(string: "https://api.example.com")!,
+    responseInterceptors: [
+        ResponseLoggingInterceptor(logger: StdoutLogger()),
+        MetricsCollectionInterceptor(collector: myMetricsCollector),
+        RetryAfterInterceptor()
+    ]
+)
+```
+
+#### Create Custom Response Interceptors
+
+Implement the `NetworkResponseInterceptor` protocol:
+
+```swift
+struct CustomValidationInterceptor: NetworkResponseInterceptor {
+    func intercept<ResponseModel>(
+        _ response: NetworkResponse<ResponseModel>,
+        _ data: Data
+    ) async throws -> NetworkResponse<ResponseModel> {
+        // Access the decoded response
+        let httpResponse = response.response as? HTTPURLResponse
+
+        // Perform custom validation
+        if let serverVersion = httpResponse?.value(forHTTPHeaderField: "X-API-Version"),
+           serverVersion != "2.0" {
+            throw CustomError.unsupportedAPIVersion
+        }
+
+        // Return the response (modified or unmodified)
+        return response
+    }
+}
+```
+
+#### Per-Request Override
+
+Override response interceptors for specific requests:
+
+```swift
+let request = NetworkRequest<VoidRequest, User>(
+    path: "/users/123",
+    method: .get,
+    responseInterceptors: [
+        StatusCodeValidationInterceptor(acceptableStatusCodes: [200, 304])
+    ]
+)
+```
+
+#### Handling Rate Limiting
+
+Use `RetryAfterInterceptor` to handle 429 (Too Many Requests) and 503 (Service Unavailable) responses:
+
+```swift
+do {
+    let response = try await client.run(request)
+    // Success
+} catch let error as RetryAfterError {
+    if let seconds = error.retryAfterSeconds {
+        print("Rate limited. Retry after \(seconds) seconds")
+        try await Task.sleep(nanoseconds: UInt64(seconds * 1_000_000_000))
+        // Retry the request
+    } else if let date = error.retryAfterDate {
+        print("Rate limited. Retry after \(date)")
+    }
+}
+```
+
 ### Custom Encoders/Decoders
 
 Override global configuration per request:
@@ -428,7 +539,10 @@ do {
         print("Error: Failed to encode the request body: \(underlyingError.localizedDescription)")
 
     case .interceptorError(let underlyingError):
-        print("Error: An interceptor failed: \(underlyingError.localizedDescription)")
+        print("Error: A request interceptor failed: \(underlyingError.localizedDescription)")
+
+    case .responseInterceptorError(let underlyingError):
+        print("Error: A response interceptor failed: \(underlyingError.localizedDescription)")
 
     case .unknown(let underlyingError):
         if let underlyingError = underlyingError {

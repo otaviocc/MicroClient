@@ -33,6 +33,10 @@ public struct NetworkConfiguration: Sendable {
     /// Interceptors are applied in the order they appear in this array.
     public let interceptors: [NetworkRequestInterceptor]
 
+    /// A chain of interceptors that can inspect and process responses after they are received and decoded.
+    /// Interceptors are applied in the order they appear in this array.
+    public let responseInterceptors: [NetworkResponseInterceptor]
+
     /// Initializes the network client configuration.
     /// - Parameters:
     ///   - session: The session used to perform the network requests.
@@ -43,6 +47,7 @@ public struct NetworkConfiguration: Sendable {
     ///   - logger: The logger for network requests and responses.
     ///   - logLevel: The log level for the logger.
     ///   - interceptors: A chain of interceptors to apply to requests. Defaults to an empty array.
+    ///   - responseInterceptors: A chain of interceptors to apply to responses. Defaults to an empty array.
     public init(
         session: URLSessionProtocol,
         defaultDecoder: JSONDecoder,
@@ -51,7 +56,8 @@ public struct NetworkConfiguration: Sendable {
         retryStrategy: RetryStrategy = .none,
         logger: NetworkLogger? = nil,
         logLevel: NetworkLogLevel = .info,
-        interceptors: [NetworkRequestInterceptor] = []
+        interceptors: [NetworkRequestInterceptor] = [],
+        responseInterceptors: [NetworkResponseInterceptor] = []
     ) {
         self.session = session
         self.defaultDecoder = defaultDecoder
@@ -61,5 +67,6 @@ public struct NetworkConfiguration: Sendable {
         self.logger = logger
         self.logLevel = logLevel
         self.interceptors = interceptors
+        self.responseInterceptors = responseInterceptors
     }
 }
