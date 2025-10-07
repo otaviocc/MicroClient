@@ -55,6 +55,7 @@ public actor NetworkClient: NetworkClientProtocol {
     // MARK: - Private
 
     // swiftlint:disable function_body_length
+
     private func performRequest<ResponseModel>(
         _ networkRequest: NetworkRequest<some Any, ResponseModel>,
         attempt: Int
@@ -118,16 +119,13 @@ public actor NetworkClient: NetworkClientProtocol {
             }
         }
 
+        let value: ResponseModel
         do {
-            let value = try networkRequest.decode(
+            value = try networkRequest.decode(
                 data: data,
                 defaultDecoder: configuration.defaultDecoder
             )
             log(.debug, "Response data: \(String(data: data, encoding: .utf8) ?? "")")
-            return NetworkResponse(
-                value: value,
-                response: response
-            )
         } catch let error as DecodingError {
             log(.error, "Response decoding error: \(error.localizedDescription)")
             throw NetworkClientError.decodingError(error)
@@ -135,6 +133,24 @@ public actor NetworkClient: NetworkClientProtocol {
             log(.error, "Unknown error during decoding: \(error.localizedDescription)")
             throw NetworkClientError.unknown(error)
         }
+
+        var networkResponse = NetworkResponse(
+            value: value,
+            response: response
+        )
+
+        let responseInterceptors = networkRequest.responseInterceptors ?? configuration.responseInterceptors
+
+        do {
+            for interceptor in responseInterceptors {
+                networkResponse = try await interceptor.intercept(networkResponse, data)
+            }
+        } catch {
+            log(.error, "Response interceptor error: \(error.localizedDescription)")
+            throw NetworkClientError.responseInterceptorError(error)
+        }
+
+        return networkResponse
     }
 
     // swiftlint:enable function_body_length

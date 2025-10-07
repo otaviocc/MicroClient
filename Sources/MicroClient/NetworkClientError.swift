@@ -27,6 +27,9 @@ public enum NetworkClientError: Error {
     /// An error occurred during the execution of a request interceptor.
     case interceptorError(Error)
 
+    /// An error occurred during the execution of a response interceptor.
+    case responseInterceptorError(Error)
+
     /// An unexpected or unknown error occurred.
     case unknown(Error?)
 }
