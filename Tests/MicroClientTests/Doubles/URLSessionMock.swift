@@ -12,6 +12,7 @@ final class URLSessionMock: URLSessionProtocol, @unchecked Sendable {
     private var stubbedResponseToReturn = URLResponse()
     private var stubbedErrorToThrow: Error?
     var succeedAfter = 0
+    var delay: TimeInterval = 0
 
     // MARK: - Public
 
@@ -21,6 +22,10 @@ final class URLSessionMock: URLSessionProtocol, @unchecked Sendable {
     ) async throws -> (Data, URLResponse) {
         lastRequest = request
         requestCount += 1
+
+        if delay > 0 {
+            try await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
+        }
 
         if succeedAfter > 0, requestCount > succeedAfter {
             // Do not throw error, return stubbed data
