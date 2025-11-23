@@ -3,12 +3,6 @@ import Foundation
 /// The network client interface.
 public protocol NetworkClientProtocol: Sendable {
 
-    /// Initializes the client with a given configuration.
-    /// - Parameter configuration: The client configuration.
-    init(
-        configuration: NetworkConfiguration
-    )
-
     /// Performs the network request.
     ///
     /// - Parameter networkRequest: The network request to perform.
