@@ -43,7 +43,7 @@ jobs:
         path: |
           .build
           ~/.cache/org.swift.swiftpm
-        key: ${{ runner.os }}-spm-release-${{ hashFiles('**/Package.resolved') }}
+        key: ${{ runner.os }}-spm-v1
         restore-keys: |
           ${{ runner.os }}-spm-release-
           ${{ runner.os }}-spm-
