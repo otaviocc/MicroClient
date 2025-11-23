@@ -36,6 +36,8 @@ public actor NetworkClient: NetworkClientProtocol {
         var lastError: Error?
 
         for attempt in 0...retryStrategy.count {
+            try Task.checkCancellation()
+
             do {
                 return try await performRequest(networkRequest, attempt: attempt)
             } catch {
@@ -94,13 +96,18 @@ public actor NetworkClient: NetworkClientProtocol {
                 for: urlRequest,
                 delegate: nil
             )
+        } catch let error as CancellationError {
+            throw error
         } catch {
             log(.error, "Transport error: \(error.localizedDescription)")
             throw NetworkClientError.transportError(error)
         }
 
         if let httpResponse = response as? HTTPURLResponse {
-            log(.info, "Response: \(httpResponse.statusCode) \(urlRequest.httpMethod ?? "") \(urlRequest.url?.absoluteString ?? "")")
+            log(
+                .info,
+                "Response: \(httpResponse.statusCode) \(urlRequest.httpMethod ?? "") \(urlRequest.url?.absoluteString ?? "")"
+            )
             log(.debug, "Response headers: \(httpResponse.allHeaderFields)")
 
             guard (200...299).contains(httpResponse.statusCode) else {
@@ -143,6 +150,8 @@ public actor NetworkClient: NetworkClientProtocol {
             log(.error, "Response interceptor error: \(error.localizedDescription)")
             throw NetworkClientError.responseInterceptorError(error)
         }
+
+        try Task.checkCancellation()
 
         return networkResponse
     }
