@@ -110,7 +110,10 @@ public actor NetworkClient: NetworkClientProtocol {
         }
 
         if let httpResponse = response as? HTTPURLResponse {
-            log(.info, "Response: \(httpResponse.statusCode) \(urlRequest.httpMethod ?? "") \(urlRequest.url?.absoluteString ?? "")")
+            log(
+                .info,
+                "Response: \(httpResponse.statusCode) \(urlRequest.httpMethod ?? "") \(urlRequest.url?.absoluteString ?? "")"
+            )
             log(.debug, "Response headers: \(httpResponse.allHeaderFields)")
 
             guard (200...299).contains(httpResponse.statusCode) else {
