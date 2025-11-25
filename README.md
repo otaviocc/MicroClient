@@ -15,6 +15,7 @@ A lightweight, zero-dependency Swift networking library designed for type-safe H
 - 🔄 **Interceptors**: Request and response middleware support with 13+ built-in interceptors for common use cases
 - 🔁 **Automatic Retries**: Built-in support for request retries
 - 🪵 **Advanced Logging**: Customizable logging for requests and responses
+- ❌ **Task Cancellation**: Full support for Swift structured concurrency cancellation
 - 📱 **Cross-platform**: Supports macOS 12+ and iOS 15+
 
 ## Requirements
@@ -508,6 +509,79 @@ let request = NetworkRequest<VoidRequest, SearchResults>(
         URLQueryItem(name: "limit", value: "10")
     ]
 )
+```
+
+### Task Cancellation
+
+MicroClient fully supports Swift's structured concurrency cancellation, allowing you to cancel in-flight network requests. When a task is cancelled, the client will immediately stop processing and throw a `CancellationError`.
+
+#### Basic Cancellation
+
+```swift
+let task = Task {
+    let request = NetworkRequest<VoidRequest, User>(
+        path: "/users/123",
+        method: .get
+    )
+    return try await client.run(request)
+}
+
+// Cancel the request
+task.cancel()
+
+do {
+    let response = try await task.value
+} catch is CancellationError {
+    print("Request was cancelled")
+}
+```
+
+#### Cancellation with Timeout
+
+```swift
+let task = Task {
+    let request = NetworkRequest<VoidRequest, LargeDataset>(
+        path: "/data",
+        method: .get
+    )
+    return try await client.run(request)
+}
+
+Task {
+    try await Task.sleep(nanoseconds: 5_000_000_000) // 5 seconds
+    task.cancel()
+}
+
+do {
+    let response = try await task.value
+} catch is CancellationError {
+    print("Request timed out and was cancelled")
+}
+```
+
+#### Cancellation During Retries
+
+Task cancellation works seamlessly with automatic retries. If a task is cancelled during retry attempts, the client will stop retrying and immediately throw a `CancellationError`:
+
+```swift
+let request = NetworkRequest<VoidRequest, User>(
+    path: "/users/123",
+    method: .get,
+    retryStrategy: .retry(count: 5)
+)
+
+let task = Task {
+    try await client.run(request)
+}
+
+// Cancel during retry attempts
+task.cancel()
+
+do {
+    try await task.value
+} catch is CancellationError {
+    print("Request cancelled during retries")
+}
 ```
 
 ## Error Handling
