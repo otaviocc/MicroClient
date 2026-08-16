@@ -21,6 +21,9 @@
 // SOFTWARE.
 
 import Foundation
+#if canImport(FoundationNetworking)
+    import FoundationNetworking
+#endif
 
 /// Protocol for URLSession to enable dependency injection and testing
 public protocol URLSessionProtocol: Sendable {

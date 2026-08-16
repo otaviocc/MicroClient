@@ -16,12 +16,13 @@ A lightweight, zero-dependency Swift networking library designed for type-safe H
 - 🔁 **Automatic Retries**: Built-in support for request retries
 - 🪵 **Advanced Logging**: Customizable logging for requests and responses
 - ❌ **Task Cancellation**: Full support for Swift structured concurrency cancellation
-- 📱 **Cross-platform**: Supports macOS 12+ and iOS 15+
+- 📱 **Cross-platform**: Supports macOS 12+, iOS 15+, and Linux
 
 ## Requirements
 
 - Swift 6.0+
 - macOS 12.0+ / iOS 15.0+
+- Linux (Swift 6.0+ toolchain)
 
 ## Installation
 
@@ -33,6 +34,19 @@ Add MicroClient to your project using Xcode's package manager or by adding it to
 dependencies: [
     .package(url: "https://github.com/otaviocc/MicroClient", from: "0.0.17")
 ]
+```
+
+### Linux
+
+MicroClient builds and runs on Linux. Because Foundation's URL loading system (`URLRequest`,
+`URLResponse`, `URLSession`) lives in the separate `FoundationNetworking` module there, add the
+standard conditional import wherever you name those types:
+
+```swift
+import MicroClient
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 ```
 
 ## Quick Start

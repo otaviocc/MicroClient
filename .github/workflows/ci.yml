@@ -51,3 +51,37 @@ jobs:
       uses: codecov/codecov-action@v5
       with:
         slug: otaviocc/MicroClient
+
+  test-linux:
+    name: Test on Linux (Swift ${{ matrix.swift-version }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        swift-version: ["6.0", "6.3"]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Swift
+      uses: swift-actions/setup-swift@v2
+      with:
+        swift-version: ${{ matrix.swift-version }}
+
+    - name: Cache Swift Package Manager
+      uses: actions/cache@v4
+      with:
+        path: |
+          .build
+          ~/.cache/org.swift.swiftpm
+        key: ${{ runner.os }}-spm-${{ matrix.swift-version }}-v1
+        restore-keys: |
+          ${{ runner.os }}-spm-${{ matrix.swift-version }}-
+          ${{ runner.os }}-spm-
+
+    - name: Build
+      run: swift build
+
+    - name: Run tests
+      run: swift test

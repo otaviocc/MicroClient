@@ -21,6 +21,9 @@
 // SOFTWARE.
 
 import Foundation
+#if canImport(FoundationNetworking)
+    import FoundationNetworking
+#endif
 
 /// A protocol for intercepting and processing network responses after they are received and decoded.
 public protocol NetworkResponseInterceptor: Sendable {

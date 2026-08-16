@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-MicroClient is a lightweight, zero-dependency Swift networking library designed for type-safe HTTP requests using modern Swift concurrency. The package targets macOS 12+ and iOS 15+, using Swift tools version 6.0.
+MicroClient is a lightweight, zero-dependency Swift networking library designed for type-safe HTTP requests using modern Swift concurrency. The package targets macOS 12+, iOS 15+, and Linux, using Swift tools version 6.0.
 
 ## Development Commands
 
@@ -37,7 +37,6 @@ The library is built around four main types that work together:
 
 1. **NetworkClient** - The main client interface (`NetworkClientProtocol` + `NetworkClient`)
    - Async/await API for making requests
-   - Combine integration with status publisher
    - Request interceptor support for middleware
 
 2. **NetworkRequest<RequestModel, ResponseModel>** - Type-safe request definitions

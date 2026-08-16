@@ -21,6 +21,9 @@
 // SOFTWARE.
 
 import Foundation
+#if canImport(FoundationNetworking)
+    import FoundationNetworking
+#endif
 @testable import MicroClient
 
 struct HeaderInterceptor: NetworkRequestInterceptor {
