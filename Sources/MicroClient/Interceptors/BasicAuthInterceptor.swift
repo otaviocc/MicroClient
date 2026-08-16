@@ -21,6 +21,9 @@
 // SOFTWARE.
 
 import Foundation
+#if canImport(FoundationNetworking)
+    import FoundationNetworking
+#endif
 
 /// An interceptor that adds Basic authentication to HTTP requests.
 ///

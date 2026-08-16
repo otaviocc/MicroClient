@@ -21,6 +21,9 @@
 // SOFTWARE.
 
 import Foundation
+#if canImport(FoundationNetworking)
+    import FoundationNetworking
+#endif
 
 /// An interceptor that validates HTTP status codes against a custom range or set of acceptable codes.
 ///

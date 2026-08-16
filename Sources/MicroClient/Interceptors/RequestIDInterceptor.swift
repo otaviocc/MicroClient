@@ -21,6 +21,9 @@
 // SOFTWARE.
 
 import Foundation
+#if canImport(FoundationNetworking)
+    import FoundationNetworking
+#endif
 
 /// An interceptor that adds unique request IDs to HTTP requests.
 ///

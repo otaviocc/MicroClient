@@ -21,6 +21,9 @@
 // SOFTWARE.
 
 import Foundation
+#if canImport(FoundationNetworking)
+    import FoundationNetworking
+#endif
 
 /// An enum representing possible errors that can occur during a network request.
 public enum NetworkClientError: Error {

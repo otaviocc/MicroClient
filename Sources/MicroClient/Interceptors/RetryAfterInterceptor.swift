@@ -21,6 +21,9 @@
 // SOFTWARE.
 
 import Foundation
+#if canImport(FoundationNetworking)
+    import FoundationNetworking
+#endif
 
 /// Error thrown when a Retry-After header indicates the client should wait before retrying.
 public struct RetryAfterError: Error {

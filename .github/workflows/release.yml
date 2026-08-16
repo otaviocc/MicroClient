@@ -83,6 +83,7 @@ jobs:
 
         - **macOS**: 12.0+
         - **iOS**: 15.0+
+        - **Linux**: Swift 6.0+ toolchain
         - **Swift**: 6.0+
 
         ### 📚 Installation
@@ -139,7 +140,7 @@ jobs:
         - ✅ **Modern Swift**: Built with async/await and Swift concurrency
         - ✅ **Zero dependencies**: Pure Swift implementation
         - ✅ **Flexible**: Configurable encoders, decoders, and interceptors
-        - ✅ **Combine support**: Publisher for client status monitoring
+        - ✅ **Cross-platform**: macOS, iOS, and Linux
         - ✅ **Comprehensive testing**: Extensive test coverage with Swift Testing
 
         EOF

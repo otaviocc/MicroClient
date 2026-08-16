@@ -21,6 +21,9 @@
 // SOFTWARE.
 
 import Foundation
+#if canImport(FoundationNetworking)
+    import FoundationNetworking
+#endif
 
 /// A protocol for receiving metrics collected from network responses.
 public protocol MetricsCollector: Sendable {

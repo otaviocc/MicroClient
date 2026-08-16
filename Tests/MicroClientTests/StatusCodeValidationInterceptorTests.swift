@@ -21,6 +21,9 @@
 // SOFTWARE.
 
 import Foundation
+#if canImport(FoundationNetworking)
+    import FoundationNetworking
+#endif
 import Testing
 @testable import MicroClient
 
@@ -30,7 +33,7 @@ struct StatusCodeValidationInterceptorTests {
     @Test("It should pass valid status codes from set")
     func passesValidStatusCodesFromSet() async throws {
         // Given
-        let acceptableCodes: Set<Int> = [200, 201, 204]
+        let acceptableCodes: Set = [200, 201, 204]
         let interceptor = StatusCodeValidationInterceptor(acceptableStatusCodes: acceptableCodes)
         let url = try #require(URL(string: "https://example.com/api"))
         let httpResponse = HTTPURLResponse(
@@ -57,7 +60,7 @@ struct StatusCodeValidationInterceptorTests {
     @Test("It should throw error for invalid status codes from set")
     func throwsErrorForInvalidStatusCodesFromSet() async throws {
         // Given
-        let acceptableCodes: Set<Int> = [200, 201]
+        let acceptableCodes: Set = [200, 201]
         let interceptor = StatusCodeValidationInterceptor(acceptableStatusCodes: acceptableCodes)
         let url = try #require(URL(string: "https://example.com/api"))
         let httpResponse = HTTPURLResponse(
@@ -196,7 +199,7 @@ struct StatusCodeValidationInterceptorTests {
     @Test("It should handle non-HTTP responses")
     func handlesNonHTTPResponses() async throws {
         // Given
-        let acceptableCodes: Set<Int> = [200]
+        let acceptableCodes: Set = [200]
         let interceptor = StatusCodeValidationInterceptor(acceptableStatusCodes: acceptableCodes)
         let url = try #require(URL(string: "https://example.com"))
         let response = URLResponse(
@@ -223,7 +226,7 @@ struct StatusCodeValidationInterceptorTests {
     @Test("It should accept 304 Not Modified with custom validation")
     func accepts304WithCustomValidation() async throws {
         // Given
-        let acceptableCodes: Set<Int> = [200, 201, 304]
+        let acceptableCodes: Set = [200, 201, 304]
         let interceptor = StatusCodeValidationInterceptor(acceptableStatusCodes: acceptableCodes)
         let url = try #require(URL(string: "https://example.com/api"))
         let httpResponse = HTTPURLResponse(

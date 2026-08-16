@@ -21,6 +21,9 @@
 // SOFTWARE.
 
 import Foundation
+#if canImport(FoundationNetworking)
+    import FoundationNetworking
+#endif
 
 /// A protocol for intercepting and modifying network requests before they are sent.
 public protocol NetworkRequestInterceptor: Sendable {

@@ -21,6 +21,9 @@
 // SOFTWARE.
 
 import Foundation
+#if canImport(FoundationNetworking)
+    import FoundationNetworking
+#endif
 @testable import MicroClient
 
 final class URLSessionMock: URLSessionProtocol, @unchecked Sendable {
@@ -30,7 +33,12 @@ final class URLSessionMock: URLSessionProtocol, @unchecked Sendable {
     private(set) var lastRequest: URLRequest?
     private(set) var requestCount = 0
     private var stubbedDataToReturn = Data()
-    private var stubbedResponseToReturn = URLResponse()
+    private var stubbedResponseToReturn = URLResponse(
+        url: URL(string: "https://example.com")!,
+        mimeType: nil,
+        expectedContentLength: 0,
+        textEncodingName: nil
+    )
     private var stubbedErrorToThrow: Error?
     var succeedAfter = 0
     var delay: TimeInterval = 0
